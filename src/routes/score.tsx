@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Copy, Printer, Share2, Trophy } from "lucide-react";
+import { Copy, Printer, Share2 } from "lucide-react";
 import { useState } from "react";
 import { LevelLine } from "@/components/xp-hud";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { LogoMark } from "@/components/logo-mark";
 import { LESSONS, STUDIO } from "@/content/unit";
 import { useProgress } from "@/lib/store";
 import { RANKS, bragText, pinIdsEarned, PINS, rankFor, studioMaxXp } from "@/lib/xp";
@@ -86,7 +87,7 @@ function ScorePage() {
             </h2>
             <p className="mt-1 text-teal">{rank.name}</p>
           </div>
-          <Trophy className="size-8 text-teal" />
+          <LogoMark className="size-12" />
         </div>
         <p className="mt-6 font-display text-6xl font-medium tabular-nums leading-none text-ink">
           {xp}

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { LogoMark } from "@/components/logo-mark";
 import { XpChip, XpToasts } from "@/components/xp-hud";
 import { LESSONS, UNIT } from "@/content/unit";
 import { useProgress } from "@/lib/store";
@@ -64,7 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="no-print sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-3 sm:gap-3 sm:px-4">
           <Link to="/" className="flex min-w-0 items-center gap-2 text-ink no-underline">
-            <LogoMark />
+            <LogoMark className="size-8" />
             <span className="min-w-0 truncate font-display text-[15px] font-semibold tracking-tight sm:text-lg">
               <span className="sm:hidden">{UNIT.shortName}</span>
               <span className="hidden sm:inline">{UNIT.name}</span>
@@ -205,18 +206,3 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
-function LogoMark() {
-  return (
-    <svg viewBox="0 0 32 32" className="size-7 shrink-0" aria-hidden>
-      <rect width="32" height="32" rx="8" fill="#1f4f4a" />
-      <path
-        fill="none"
-        stroke="#f3efe6"
-        strokeWidth="2.4"
-        strokeLinecap="butt"
-        strokeLinejoin="miter"
-        d="M10 7v18M10 7h7.2c3.4 0 5.6 1.8 5.6 4.6S20.6 16 17.2 16H10M10 16h8c3.6 0 5.8 2 5.8 5s-2.2 5-5.8 5H10"
-      />
-    </svg>
-  );
-}

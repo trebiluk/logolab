@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GLOSSARY } from "@/content/glossary";
+import { LogoMark } from "@/components/logo-mark";
 import {
   AeroLinkMark,
   ArcadyMark,
@@ -75,9 +76,12 @@ export function PrintablePage({ id }: { id: string }) {
       </div>
       <article className="mx-auto max-w-[8.5in] rounded-xl bg-surface p-6 shadow-[var(--shadow-border)] print:max-w-none print:rounded-none print:p-0 print:shadow-none">
         <header className="mb-5 border-b border-ink pb-3">
-          <p className="text-[11px] uppercase tracking-[0.2em] text-muted">
-            BertyBot's LogoLab · Grades 6–8 · {meta.audience}
-          </p>
+          <div className="flex items-center gap-2">
+            <LogoMark className="size-7 print:size-6" />
+            <p className="text-[11px] uppercase tracking-[0.2em] text-muted">
+              BertyBot's LogoLab · Grades 6–8 · {meta.audience}
+            </p>
+          </div>
           <h1 className="font-display text-3xl font-medium">{meta.title}</h1>
           {id === "certificate" ? null : (
             <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
@@ -481,7 +485,8 @@ function Certificate() {
 
   return (
     <div className="border-2 border-ink px-8 py-10 text-center">
-      <p className="text-xs uppercase tracking-[0.28em] text-teal">{UNIT.name}</p>
+      <LogoMark className="mx-auto size-16" />
+      <p className="mt-4 text-xs uppercase tracking-[0.28em] text-teal">{UNIT.name}</p>
       <p className="mt-6 font-display text-sm uppercase tracking-[0.2em] text-muted">
         Certifies that
       </p>

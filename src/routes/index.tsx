@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen, Printer, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { LogoLockup, LogoMark } from "@/components/logo-mark";
 import { MarkBoard } from "@/components/mark-board";
 import { RankStrip } from "@/components/xp-hud";
 import { DailyWarmup } from "@/components/warmup";
@@ -32,6 +33,7 @@ function Home() {
   return (
     <div className="mx-auto max-w-4xl">
       <section className="rise-in">
+        <LogoLockup size="lg" className="mb-8" />
         <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted">
           {UNIT.grades} · {UNIT.length}
         </p>
@@ -51,6 +53,14 @@ function Home() {
         <p className="mt-3 max-w-xl text-sm text-muted">
           Chromebook and Windows 11 ready — Chrome or Edge, touch or keys 1–9.
           Earn XP, climb ranks, and brag on this device.
+        </p>
+        <p className="mt-4 flex max-w-xl items-start gap-3 text-sm text-ink-soft">
+          <LogoMark variant="bare" className="mt-0.5 size-9" />
+          <span>
+            Our house mark is a lettermark. The top counter is a lens. The gold
+            spark sits in the waist — look for it, the way you look for a secret
+            in a wordmark.
+          </span>
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild size="lg">
