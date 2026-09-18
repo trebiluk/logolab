@@ -1,0 +1,24 @@
+node_modules
+.node_modules.lock
+dist
+.output
+.nitro
+.tanstack
+.vercel
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+
+# Sandbox / agent working files
+artifacts
+attachments
+screenshots
+AGENTS.md
+AGENTS.project.md
+startup.sh
+
+# Brand-pass working files (shipped assets live in public/)
+.grok/*
+!.grok/app-env.json

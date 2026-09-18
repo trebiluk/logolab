@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="8" fill="#1f4f4a"/>
+  <path
+    fill="none"
+    stroke="#f3efe6"
+    stroke-width="2.6"
+    stroke-linecap="butt"
+    stroke-linejoin="miter"
+    d="M10 7v18M10 7h7.2c3.4 0 5.6 1.8 5.6 4.6S20.6 16 17.2 16H10M10 16h8c3.6 0 5.8 2 5.8 5s-2.2 5-5.8 5H10"
+  />
+</svg>
