@@ -1,0 +1,35 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/logolab/",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/logolab/assets/:path*",
+      "destination": "/assets/:path*"
+    },
+    {
+      "source": "/logolab/favicon.svg",
+      "destination": "/favicon.svg"
+    },
+    {
+      "source": "/logolab/mark.svg",
+      "destination": "/mark.svg"
+    },
+    {
+      "source": "/logolab/og.jpg",
+      "destination": "/og.jpg"
+    },
+    {
+      "source": "/logolab/x-banner.jpg",
+      "destination": "/x-banner.jpg"
+    },
+    {
+      "source": "/logolab/__grok/:path*",
+      "destination": "/__grok/:path*"
+    }
+  ]
+}

@@ -2,8 +2,8 @@
 
 Grades 6–8 looking-and-thinking unit on how logos work. Original lab brands, broken clinic marks, paper sketching, ELL supports, XP, and printables. **Not a logo generator.**
 
-**Classroom door:** [apps.kulibert.net](https://apps.kulibert.net) → LogoLab  
-**Live:** [logolab-rho.vercel.app](https://logolab-rho.vercel.app)  
+**Classroom door:** [apps.kulibert.net/logolab](https://apps.kulibert.net/logolab/) (same-origin Tech Room tile)  
+**Live:** [logolab-rho.vercel.app/logolab](https://logolab-rho.vercel.app/logolab/)  
 **No student accounts.** Progress stays in the browser (`localStorage`).
 
 ## For class
