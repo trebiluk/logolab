@@ -52,14 +52,16 @@ export function LogoMark({
   const body = mono ? "currentColor" : tiled ? CREAM : TEAL;
   const spark = mono ? undefined : GOLD;
 
+  const labelled = Boolean(title);
   return (
     <svg
       viewBox="0 0 64 64"
       className={cn("shrink-0", className)}
-      role="img"
-      aria-label={title}
+      role={labelled ? "img" : "presentation"}
+      aria-hidden={labelled ? undefined : true}
+      aria-label={labelled ? title : undefined}
     >
-      <title>{title}</title>
+      {labelled ? <title>{title}</title> : null}
       {tiled ? <rect width="64" height="64" rx="14" fill={TEAL} /> : null}
       <path fill={body} fillRule="evenodd" d={`${B_BODY} ${LENS} ${DISH}`} />
       {spark ? <path fill={spark} d={SPARK} /> : null}

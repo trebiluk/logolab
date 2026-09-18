@@ -55,7 +55,7 @@ function Home() {
           Earn XP, climb ranks, and brag on this device.
         </p>
         <p className="mt-4 flex max-w-xl items-start gap-3 text-sm text-ink-soft">
-          <LogoMark variant="bare" className="mt-0.5 size-9" />
+          <LogoMark variant="bare" className="mt-0.5 size-9" title="" />
           <span>
             Our house mark is a lettermark. The top counter is a lens. The gold
             spark sits in the waist — look for it, the way you look for a secret

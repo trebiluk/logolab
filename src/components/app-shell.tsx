@@ -65,7 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="no-print sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-3 sm:gap-3 sm:px-4">
           <Link to="/" className="flex min-w-0 items-center gap-2 text-ink no-underline">
-            <LogoMark className="size-8" />
+            <LogoMark className="size-8" title="" />
             <span className="min-w-0 truncate font-display text-[15px] font-semibold tracking-tight sm:text-lg">
               <span className="sm:hidden">{UNIT.shortName}</span>
               <span className="hidden sm:inline">{UNIT.name}</span>
