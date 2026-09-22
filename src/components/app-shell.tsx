@@ -11,11 +11,13 @@ import {
 } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { FloorKeys } from "@/components/floor-keys";
 import { LogoMark } from "@/components/logo-mark";
 import { XpChip, XpToasts } from "@/components/xp-hud";
 import { LESSONS, UNIT } from "@/content/unit";
 import { useProgress } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { APP_CHIP } from "@/lib/version";
 
 const NAV = [
   { to: "/", label: "Home", icon: Home },
@@ -62,20 +64,32 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         Skip to content
       </a>
-      <header className="no-print sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur-sm">
+      <header className="no-print sticky top-0 z-40 border-b border-line bg-paper">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-3 sm:gap-3 sm:px-4">
-          <Link to="/" className="flex min-w-0 items-center gap-2 text-ink no-underline">
+          <Link to="/" className="flex min-h-11 min-w-0 items-center gap-2 text-ink no-underline">
             <LogoMark className="size-8" title="" />
-            <span className="min-w-0 truncate font-display text-[15px] font-semibold tracking-tight sm:text-lg">
-              <span className="sm:hidden">{UNIT.shortName}</span>
-              <span className="hidden sm:inline">{UNIT.name}</span>
+            <span className="min-w-0 leading-none">
+              <span className="hidden font-mono text-[9px] font-medium uppercase tracking-[0.18em] text-teal sm:block">
+                TechWorks
+              </span>
+              <span className="block truncate font-display text-[15px] font-semibold tracking-tight sm:text-lg">
+                <span className="sm:hidden">{UNIT.shortName}</span>
+                <span className="hidden sm:inline">{UNIT.name}</span>
+              </span>
             </span>
           </Link>
           <XpChip />
+          <span
+            className="hidden font-mono text-[10px] tabular-nums text-muted lg:inline"
+            title="Version chip"
+          >
+            {APP_CHIP}
+          </span>
           <div className="ml-auto flex items-center gap-1">
             <Button
               variant={spanish ? "default" : "ghost"}
-              size="sm"
+              size="default"
+              className="min-w-11 px-3"
               onClick={() => setSpanish(!spanish)}
               aria-pressed={spanish}
               title="Spanish supports"
@@ -92,7 +106,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <Type className="size-4" />
             </Button>
-            <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
+            <Button variant="ghost" size="default" asChild className="hidden min-h-11 sm:inline-flex">
               <Link to="/teacher">
                 <ClipboardList className="size-4" />
                 Teacher
@@ -170,7 +184,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       <nav
-        className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/95 backdrop-blur-sm md:hidden"
+        className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper md:hidden"
         aria-label="Primary"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
@@ -199,6 +213,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </ul>
       </nav>
       <XpToasts />
+      <FloorKeys />
       {role === "teacher" ? (
         <span className="sr-only">Teacher view is on</span>
       ) : null}

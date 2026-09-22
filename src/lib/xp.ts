@@ -10,11 +10,11 @@ export const XP_PER_LEVEL = 120;
 export const RANKS = [
   { min: 0, name: "Intern", nameEs: "Interno" },
   { min: 120, name: "Apprentice", nameEs: "Aprendiz" },
-  { min: 280, name: "Mark Maker", nameEs: "Creador" },
-  { min: 480, name: "Sharp Eye", nameEs: "Ojo agudo" },
-  { min: 720, name: "Critic", nameEs: "Crítico" },
-  { min: 1000, name: "Studio Lead", nameEs: "Líder" },
-  { min: 1400, name: "Master of Marks", nameEs: "Maestro" },
+  { min: 280, name: "Die Setter", nameEs: "Troquelador" },
+  { min: 480, name: "Inspector", nameEs: "Inspector" },
+  { min: 720, name: "Floor Lead", nameEs: "Líder de piso" },
+  { min: 1000, name: "Shop Captain", nameEs: "Capitán" },
+  { min: 1400, name: "Master Stamp", nameEs: "Maestro" },
 ] as const;
 
 export type Rank = (typeof RANKS)[number];
@@ -55,16 +55,16 @@ export function bragText(name: string, xp: number, rank: string): string {
 }
 
 export const PINS = [
-  { id: "first", name: "First look", nameEs: "Primera mirada", hint: "Finish one lesson." },
-  { id: "lessons", name: "Six periods", nameEs: "Seis lecciones", hint: "Mark all six lessons done." },
-  { id: "studio", name: "Studio kid", nameEs: "De estudio", hint: "Play every studio game." },
-  { id: "perfect", name: "Sharp one", nameEs: "Una perfecta", hint: "Score 100% on any studio." },
-  { id: "sweep", name: "Studio sweep", nameEs: "Barrido", hint: "100% on every studio." },
+  { id: "first", name: "First punch", nameEs: "Primer golpe", hint: "Finish one station." },
+  { id: "lessons", name: "Six stations", nameEs: "Seis estaciones", hint: "Mark all six stations done." },
+  { id: "studio", name: "Floor kid", nameEs: "De piso", hint: "Play every floor game." },
+  { id: "perfect", name: "Clean die", nameEs: "Troquel limpio", hint: "Score 100% on any floor game." },
+  { id: "sweep", name: "Floor sweep", nameEs: "Barrido", hint: "100% on every floor game." },
   { id: "words", name: "Word collector", nameEs: "Coleccionista", hint: "Star eight glossary words." },
-  { id: "notes", name: "Notebook", nameEs: "Cuaderno", hint: "Save three exit tickets." },
+  { id: "notes", name: "Job tickets", nameEs: "Fichas", hint: "Save three exit tickets." },
   { id: "warmup", name: "Daily eye", nameEs: "Ojo diario", hint: "Finish today's sketch warmup." },
-  { id: "lead", name: "Studio Lead", nameEs: "Líder", hint: "Reach the Studio Lead rank." },
-  { id: "master", name: "Master of Marks", nameEs: "Maestro", hint: "Hit the top rank." },
+  { id: "lead", name: "Shop Captain", nameEs: "Capitán", hint: "Reach Shop Captain." },
+  { id: "master", name: "Master Stamp", nameEs: "Maestro", hint: "Hit the top rank." },
 ] as const;
 
 export function pinIdsEarned(p: {

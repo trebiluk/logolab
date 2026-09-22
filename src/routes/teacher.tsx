@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LESSONS, STANDARDS, UNIT } from "@/content/unit";
 import { useProgress } from "@/lib/store";
+import { APP_CHIP, CHANGELOG, floorDump } from "@/lib/version";
 
 export const Route = createFileRoute("/teacher")({ component: Teacher });
 
@@ -12,17 +14,21 @@ function Teacher() {
   const xp = useProgress((s) => s.xp);
   const highScore = useProgress((s) => s.highScore);
   const hall = useProgress((s) => s.hall);
+  const completedLessons = useProgress((s) => s.completedLessons);
+  const activityDone = useProgress((s) => s.activityDone);
+  const warmupDay = useProgress((s) => s.warmupDay);
+  const [copiedDump, setCopiedDump] = useState(false);
 
   return (
     <div className="mx-auto max-w-3xl space-y-10">
       <header>
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted">
-          Teacher guide
+        <p className="text-xs font-medium uppercase tracking-[0.2em] text-teal">
+          TechWorks · Teacher guide · {APP_CHIP}
         </p>
         <h1 className="mt-2 font-display text-4xl font-medium">{UNIT.name}</h1>
         <p className="mt-2 text-ink-soft">
-          {UNIT.grades} · {UNIT.length}. A looking unit with paper making. Not a
-          logo generator.
+          {UNIT.grades} · {UNIT.length}. BertyBot’s mark factory: looking on
+          screen, making on paper. Not a logo generator.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button onClick={() => setRole("teacher")} variant="secondary">
@@ -50,9 +56,9 @@ function Teacher() {
           </li>
           <li>
             Famous real logos (the apple, the swoosh) stay in talk and in
-            memory sketches. On-screen marks are original lab brands, plus
-            invented logos that are broken on purpose. Do not ask students to
-            trace trademarks.
+            memory sketches. On-screen marks are original lab brands, invented
+            logos that are broken on purpose, and joke cousins that tease a
+            famous idea. Students name the real brand — they do not trace it.
           </li>
           <li>
             Turn on <span className="font-medium text-teal">ES</span> and larger
@@ -96,9 +102,10 @@ function Teacher() {
       <section>
         <h2 className="font-display text-2xl font-medium">XP on this device</h2>
         <p className="mt-2 text-ink-soft">
-          Current XP {xp} · high score {highScore} · {hall.length} hall posts.
-          Resetting clears lessons, studio bests, stars, and XP. Teacher mode,
-          ES, and large type stay. Clearing the hall only wipes posted names.
+          Grade is not Bank. XP is brag on this Chromebook — it does not post to
+          TechWorks desk, TechCash, or a 3/2/1. Current {xp} · high {highScore} ·{" "}
+          {hall.length} hall posts (aliases only). Resetting clears lessons,
+          floor bests, stars, and XP. Teacher mode, ES, and large type stay.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button
@@ -126,10 +133,54 @@ function Teacher() {
           >
             Clear hall of fame
           </Button>
+          <Button
+            variant="outline"
+            onClick={async () => {
+              const text = floorDump({
+                xp,
+                highScore,
+                completedLessons,
+                activityDone,
+                warmupDay,
+                hall,
+              });
+              try {
+                await navigator.clipboard.writeText(text);
+              } catch {
+                window.prompt("Floor dump", text);
+              }
+              setCopiedDump(true);
+              window.setTimeout(() => setCopiedDump(false), 1800);
+            }}
+          >
+            {copiedDump ? "Dump copied" : "Copy floor dump"}
+          </Button>
           <Button asChild variant="secondary">
             <Link to="/score">Open brag board</Link>
           </Button>
         </div>
+        <p className="mt-2 text-xs text-muted">
+          Floor dump is counts only — no aliases. Hall names stay on this pad.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl font-medium">Changelog</h2>
+        <ol className="mt-3 space-y-4">
+          {CHANGELOG.map((entry) => (
+            <li key={entry.chip} className="rounded-xl border border-line bg-surface p-4">
+              <p className="font-mono text-sm text-teal">
+                {entry.chip}
+                <span className="ml-2 text-muted">{entry.when}</span>
+              </p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+                {entry.notes.map((n) => (
+                  <li key={n}>{n}</li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section>

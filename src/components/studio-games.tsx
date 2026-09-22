@@ -10,15 +10,21 @@ import {
   AeroLinkMark,
   ArcadyMark,
   BeaconMark,
+  BurgerBlastMark,
+  COUSIN_MARKS,
   FAKE_LOGOS,
   FoxfireMark,
+  IronGymMark,
   LAB_BRANDS,
   MesaMark,
+  NiteOwlMark,
   NorthParkMark,
   OakInkMark,
   PactMark,
+  PineSoapMark,
   QuillMark,
   RedRailMark,
+  SpeedyBoxMark,
   StrideMark,
   SummitMark,
 } from "@/content/marks";
@@ -286,7 +292,7 @@ export function StudioGame({ id }: { id: string }) {
   }
   return (
     <div className="mx-auto max-w-2xl">
-      <p className="text-xs font-medium uppercase tracking-wider text-muted">Studio</p>
+      <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-teal">Shop floor</p>
       <h1 className="mt-1 font-display text-4xl font-medium">{meta.title}</h1>
       <p className="mt-2 text-ink-soft">{meta.blurb}</p>
       <p className="mt-1 text-sm text-muted">
@@ -295,10 +301,12 @@ export function StudioGame({ id }: { id: string }) {
       <div className="mt-8">
         {id === "sort" && <SortGame />}
         {id === "silhouette" && <SilhouetteGame />}
+        {id === "scale" && <ScaleGame />}
         {id === "hidden" && <HiddenGame />}
         {id === "color" && <ColorGame />}
         {id === "type" && <TypeGame />}
         {id === "clinic" && <ClinicGame />}
+        {id === "cousins" && <CousinGame />}
         {id === "drill" && <DrillGame />}
       </div>
     </div>
@@ -350,6 +358,16 @@ function Result({
   const lastGain = useProgress((s) => s.lastGain);
   const highScore = useProgress((s) => s.highScore);
   const gained = lastGain && lastGain.amount > 0;
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        onRestart();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onRestart]);
   return (
     <div className="rounded-xl border border-line bg-surface p-6 text-center">
       <p className="text-sm text-muted">You got</p>
@@ -363,6 +381,7 @@ function Result({
         <p className="mt-3 text-sm text-muted">No new XP — beat your best to earn more.</p>
       )}
       <p className="mt-1 text-sm tabular-nums text-muted">High score {highScore} XP</p>
+      <p className="mt-1 text-xs text-muted">Enter or Space to run it again</p>
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         <Button onClick={onRestart}>
           <RotateCcw className="size-4" />
@@ -375,7 +394,7 @@ function Result({
           </Link>
         </Button>
         <Button asChild variant="outline">
-          <Link to="/studio">Studios</Link>
+          <Link to="/studio">Floor</Link>
         </Button>
       </div>
       {frames ? (
@@ -438,10 +457,7 @@ function SilhouetteGame() {
   const r = useRound(SILHOUETTE_ROUNDS);
   const [picked, setPicked] = useState<string | null>(null);
   const item = r.item;
-  const choices = useMemo(() => {
-    const all = [item.name, ...item.decoys];
-    return all.sort(() => Math.random() - 0.5);
-  }, [item]);
+  const choices = useMemo(() => shuffle([item.name, ...item.decoys]), [item]);
   useChoiceKeys(choices.length, !r.done && picked === null, (index) => {
     const c = choices[index];
     if (!c) return;
@@ -482,6 +498,114 @@ function SilhouetteGame() {
             >
               <KeyHint n={index + 1} />
               {c}
+            </button>
+          );
+        })}
+      </div>
+    </RoundShell>
+  );
+}
+
+const SCALE_ROUNDS = [
+  {
+    id: "stamp",
+    prompt: "Stamp size. Which still looks like a thing?",
+    options: [
+      { id: "a", Mark: PineSoapMark, ok: true, note: "Two shapes. The tree holds." },
+      { id: "b", Mark: SpeedyBoxMark, ok: false, note: "The van and slogan turn to mud." },
+    ],
+  },
+  {
+    id: "fox",
+    prompt: "Which silhouette would still work as a 16-pixel favicon?",
+    options: [
+      { id: "a", Mark: BurgerBlastMark, ok: false, note: "Four typefaces and stars become noise." },
+      { id: "b", Mark: FoxfireMark, ok: true, note: "A fox-head shield still reads as a fox." },
+    ],
+  },
+  {
+    id: "rail",
+    prompt: "One-color print on a pencil. Which mark survives?",
+    options: [
+      { id: "a", Mark: RedRailMark, ok: true, note: "Two letters. Heavy. It is still RR." },
+      { id: "b", Mark: IronGymMark, ok: false, note: "Chrome and outlines vanish in one ink." },
+    ],
+  },
+  {
+    id: "sleep",
+    prompt: "A tiny hang-tag. Which one still has contrast?",
+    options: [
+      { id: "a", Mark: NiteOwlMark, ok: false, note: "Neon on neon. The letters disappear." },
+      { id: "b", Mark: BeaconMark, ok: true, note: "Dark field, light spark. Contrast does the job." },
+    ],
+  },
+  {
+    id: "stride",
+    prompt: "Far across the gym. Which shape do you still know?",
+    options: [
+      { id: "a", Mark: StrideMark, ok: true, note: "Three square terminals. Abstract, but bold." },
+      { id: "b", Mark: SpeedyBoxMark, ok: false, note: "Detail is a luxury you do not have at distance." },
+    ],
+  },
+  {
+    id: "rule",
+    prompt: "The QC rule for almost every strong mark:",
+    options: [
+      { id: "a", Mark: PineSoapMark, ok: true, note: "If it fails at stamp size, it is not finished." },
+      { id: "b", Mark: BurgerBlastMark, ok: false, note: "More parts is not more brand." },
+    ],
+  },
+] as const;
+
+function ScaleGame() {
+  const r = useRound([...SCALE_ROUNDS]);
+  const [picked, setPicked] = useState<string | null>(null);
+  const item = r.item;
+  useChoiceKeys(item.options.length, !r.done && picked === null, (index) => {
+    const o = item.options[index];
+    if (!o) return;
+    setPicked(o.id);
+    window.setTimeout(() => {
+      r.next(o.ok, "scale");
+      setPicked(null);
+    }, 900);
+  });
+  if (r.done) return <Result score={r.score} total={r.total} onRestart={r.restart} frames="compare" />;
+  return (
+    <RoundShell i={r.i} total={r.total} score={r.score} streak={r.streak} keys={item.options.length}>
+      <p className="font-medium">{item.prompt}</p>
+      <p className="mt-1 text-sm text-muted">Shown at favicon size. Trust the silhouette.</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {item.options.map((o, index) => {
+          const show = picked !== null;
+          return (
+            <button
+              key={o.id}
+              type="button"
+              disabled={picked !== null}
+              onClick={() => {
+                setPicked(o.id);
+                window.setTimeout(() => {
+                  r.next(o.ok, "scale");
+                  setPicked(null);
+                }, 900);
+              }}
+              className={cn(
+                "flex flex-col items-center gap-3 rounded-xl border p-4",
+                show && o.ok && "border-good bg-good-soft",
+                show && picked === o.id && !o.ok && "border-bad bg-bad-soft",
+                !show && "border-line bg-surface hover:bg-surface-2 focus-visible:bg-surface-2",
+              )}
+            >
+              <span className="self-start">
+                <KeyHint n={index + 1} />
+              </span>
+              <span className="flex size-16 items-center justify-center rounded-md bg-paper-2">
+                <span className="block size-7 [&_svg]:h-full [&_svg]:w-full">
+                  <o.Mark />
+                </span>
+              </span>
+              {show ? <span className="text-sm text-ink-soft">{o.note}</span> : null}
             </button>
           );
         })}
@@ -657,21 +781,37 @@ function shuffle<T>(list: T[]) {
 }
 
 function DrillGame() {
-  const rounds = useMemo(() => {
+  const [rounds, setRounds] = useState<
+    { id: string; prompt: string; answer: string; options: string[]; example: string }[] | null
+  >(null);
+  useEffect(() => {
     const terms = shuffle(GLOSSARY).slice(0, 8);
-    return terms.map((t) => {
-      const decoys = shuffle(GLOSSARY.filter((x) => x.id !== t.id))
-        .slice(0, 3)
-        .map((x) => x.term);
-      return {
-        id: t.id,
-        prompt: t.simple,
-        answer: t.term,
-        options: shuffle([t.term, ...decoys]),
-        example: t.example,
-      };
-    });
+    setRounds(
+      terms.map((t) => {
+        const decoys = shuffle(GLOSSARY.filter((x) => x.id !== t.id))
+          .slice(0, 3)
+          .map((x) => x.term);
+        return {
+          id: t.id,
+          prompt: t.simple,
+          answer: t.term,
+          options: shuffle([t.term, ...decoys]),
+          example: t.example,
+        };
+      }),
+    );
   }, []);
+  if (!rounds) {
+    return <div className="h-48 animate-pulse rounded-xl bg-surface-2" />;
+  }
+  return <DrillPlay rounds={rounds} />;
+}
+
+function DrillPlay({
+  rounds,
+}: {
+  rounds: { id: string; prompt: string; answer: string; options: string[]; example: string }[];
+}) {
   const r = useRound(rounds);
   const item = r.item;
   useChoiceKeys(item.options.length, !r.done && !r.locked, (index) => {
@@ -794,6 +934,73 @@ function ClinicGame() {
   );
 }
 
+function CousinGame() {
+  const r = useRound(COUSIN_MARKS);
+  const [picked, setPicked] = useState<string | null>(null);
+  const spanish = useProgress((s) => s.spanish);
+  const item = r.item;
+  useChoiceKeys(item.options.length, !r.done && picked === null, (index) => {
+    const c = item.options[index];
+    if (!c) return;
+    setPicked(c);
+    window.setTimeout(() => {
+      r.next(c === item.answer, "cousins");
+      setPicked(null);
+    }, 1100);
+  });
+  if (r.done) {
+    return <Result score={r.score} total={r.total} onRestart={r.restart} frames="critique" />;
+  }
+  return (
+    <RoundShell i={r.i} total={r.total} score={r.score} streak={r.streak} keys={item.options.length}>
+      <p className="mb-3 text-sm text-muted">
+        {spanish
+          ? "Marca de broma. Nombra la marca famosa de memoria. No la dibujamos."
+          : "Joke mark. Name the famous brand from memory. We never draw it."}
+      </p>
+      <MarkBoard caption={item.name}>
+        <item.Mark />
+      </MarkBoard>
+      <p className="mt-4 font-medium">Which famous mark is this teasing?</p>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        {item.options.map((c, index) => {
+          const show = picked !== null;
+          const correct = c === item.answer;
+          return (
+            <button
+              key={c}
+              type="button"
+              disabled={picked !== null}
+              onClick={() => {
+                setPicked(c);
+                window.setTimeout(() => {
+                  r.next(c === item.answer, "cousins");
+                  setPicked(null);
+                }, 1100);
+              }}
+              className={cn(
+                "flex min-h-12 items-center justify-center rounded-md border px-2 text-sm",
+                show && correct && "border-good bg-good-soft",
+                show && picked === c && !correct && "border-bad bg-bad-soft",
+                !show && "border-line bg-surface hover:bg-surface-2 focus-visible:bg-surface-2",
+              )}
+            >
+              <KeyHint n={index + 1} />
+              {c}
+            </button>
+          );
+        })}
+      </div>
+      {picked !== null ? (
+        <div className="mt-3 rounded-lg bg-surface-2 p-3 text-sm text-ink-soft">
+          <p className="font-medium text-ink">{item.tease}</p>
+          <p className="mt-1">{item.why}</p>
+        </div>
+      ) : null}
+    </RoundShell>
+  );
+}
+
 function RoundShell({
   i,
   total,
@@ -845,10 +1052,10 @@ export function StudioIndex() {
   const spanish = useProgress((s) => s.spanish);
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="font-display text-4xl font-medium">Studio</h1>
+      <h1 className="font-display text-4xl font-medium">Shop floor</h1>
       <p className="mt-2 text-ink-soft">
-        Short looking games. Touch, click, or number keys. Scores and XP stay on
-        this device.
+        Short looking games. Touch, click, or keys 1–9. Press ? for the key card.
+        Scores and XP stay on this device — brag, not a grade.
       </p>
       <ul className="mt-8 grid gap-3 sm:grid-cols-2">
         {STUDIO.map((s) => (

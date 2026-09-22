@@ -1,16 +1,16 @@
 export const UNIT = {
   name: "BertyBot's LogoLab",
   shortName: "LogoLab",
-  subtitle: "How logos work",
+  subtitle: "A TechWorks mark factory",
   grades: "Grades 6–8",
   length: "8–10 class periods",
   drivingQuestion: "How do designers make a mark that people remember — and trust?",
   drivingQuestionEs:
     "¿Cómo hacen los diseñadores una marca que la gente recuerda y en la que confía?",
   notAMaker:
-    "This is a looking-and-thinking unit, not a logo generator. Students study original lab brands, broken invented logos, and diagrams — then draw on paper. Famous real logos stay in memory and discussion, not as cheap copies on screen.",
+    "BertyBot runs this TechWorks shop floor. It is a looking-and-thinking factory, not a logo generator. We punch original lab brands, inspect broken marks, tease famous cousins, then draw on paper. Famous real logos stay in memory — never as cheap copies on screen.",
   fairUse:
-    "Lab brands are original study marks made for this class. Real company logos are not copied here — they are owned, and a weak tracing is worse than none.",
+    "Lab brands and joke cousins are original study marks made for this class. Real company logos are not copied here — they are owned, and a weak tracing is worse than none. Cousins tease an idea so you can name the real brand from memory.",
 };
 
 export type LessonMeta = {
@@ -121,10 +121,11 @@ export const LESSONS: LessonMeta[] = [
       "Puedo criticar una marca con palabras de diseño — y ser amable con la persona.",
     languageGoal: "Use sentence frames: I notice, This works because, This would be stronger if.",
     languageGoalEs: "Usar marcos: I notice, This works because, This would be stronger if.",
-    vocab: ["critique", "hierarchy", "contrast", "simplicity"],
+    vocab: ["critique", "hierarchy", "contrast", "simplicity", "copycat"],
     studio: "clinic",
     printable: "critique-sheet",
-    summary: "Fake logos go under the lights. Students diagnose, then get a paper design brief.",
+    summary:
+      "Fake logos go under the lights. Joke cousins tease famous marks. Students diagnose, then get a paper design brief.",
   },
 ];
 
@@ -144,6 +145,14 @@ export const STUDIO = [
     blurb: "Name the lab brand from the solid outline alone.",
     lesson: "simple",
     rounds: 8,
+  },
+  {
+    id: "scale",
+    title: "Optical QC",
+    titleEs: "Control óptico",
+    blurb: "Stamp-size inspection. Which mark still reads when it is tiny?",
+    lesson: "simple",
+    rounds: 6,
   },
   {
     id: "hidden",
@@ -176,6 +185,14 @@ export const STUDIO = [
     blurb: "Tap every problem on a broken mark, then read the diagnosis.",
     lesson: "critique",
     rounds: 6,
+  },
+  {
+    id: "cousins",
+    title: "Guess the cousin",
+    titleEs: "Adivina el primo",
+    blurb: "Joke knockoffs of famous marks. Name the real brand — we never draw it.",
+    lesson: "critique",
+    rounds: 8,
   },
   {
     id: "drill",
@@ -252,6 +269,13 @@ export const PRINTABLES = [
     blurb: "Sentence frames and a 4-point rubric for the paper mark.",
   },
   {
+    id: "cousin-hunt",
+    title: "Guess the cousin",
+    audience: "student" as const,
+    pages: "1",
+    blurb: "Look at the joke knockoffs. Name the famous mark each one is teasing — from memory.",
+  },
+  {
     id: "teacher-pacing",
     title: "Pacing, keys, and ELL notes",
     audience: "teacher" as const,
@@ -283,6 +307,7 @@ export const FRAMES = {
     "This would be stronger if ______.",
     "The designer might have wanted us to feel ______.",
     "I would keep ______ and change ______.",
+    "This copycat is teasing ______, but it fails because ______.",
   ],
   color: [
     "The color ______ makes me think of ______.",

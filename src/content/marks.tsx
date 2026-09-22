@@ -19,14 +19,19 @@ function Frame({
   viewBox?: string;
   title?: string;
 }) {
+  const parts = viewBox.trim().split(/[\s,]+/).map(Number);
+  const w = parts[2] || 160;
+  const h = parts[3] || 110;
   return (
     <svg
       viewBox={viewBox}
+      width={w}
+      height={h}
       className={cn("h-full w-full", className)}
       role="img"
       aria-label={title}
       preserveAspectRatio="xMidYMid meet"
-      overflow="visible"
+      overflow="hidden"
     >
       {title ? <title>{title}</title> : null}
       {children}
@@ -864,3 +869,324 @@ export const FAKE_LOGOS = [
     diagnosis: "The letter O is also a leaf. Type is the picture.",
   },
 ];
+
+/** Joke cousins — original knockoffs that tease a famous idea. Never the real drawing. */
+export function NikoMark({ className, title = "Niko — joke cousin mark" }: MarkProps) {
+  const fill = ink(false, "#1c1a16");
+  return (
+    <Frame className={className} viewBox="0 0 200 140" title={title}>
+      <path
+        fill={fill}
+        d="M22 40
+           C62 118 138 118 178 40
+           C140 96 60 96 22 40Z"
+      />
+      <text
+        x="100"
+        y="128"
+        textAnchor="middle"
+        fill={fill}
+        fontFamily={SANS}
+        fontSize="22"
+        fontWeight="800"
+        fontStyle="italic"
+        letterSpacing="6"
+      >
+        NIKO
+      </text>
+    </Frame>
+  );
+}
+
+export function PearComputingMark({ className, title = "Pear Computing — joke cousin mark" }: MarkProps) {
+  const fill = ink(false, "#1c1a16");
+  return (
+    <Frame className={className} viewBox="0 0 160 160" title={title}>
+      <path
+        fill={fill}
+        d="M80 22
+           C102 22 118 42 118 66
+           C118 86 108 102 96 112
+           C90 104 70 104 64 112
+           C52 102 42 86 42 66
+           C42 42 58 22 80 22Z"
+      />
+      <path fill={fill} d="M78 8 h4 v16 h-4z" />
+      <path
+        fill={fill}
+        d="M82 12
+           C102 8 112 22 100 32
+           C92 24 86 20 82 12Z"
+      />
+      <text
+        x="80"
+        y="152"
+        textAnchor="middle"
+        fill={fill}
+        fontFamily={SANS}
+        fontSize="13"
+        fontWeight="700"
+        letterSpacing="3"
+      >
+        PEAR
+      </text>
+    </Frame>
+  );
+}
+
+export function McWaffleMark({ className, title = "McWaffle — joke cousin mark" }: MarkProps) {
+  const gold = "#c9a24a";
+  return (
+    <Frame className={className} viewBox="0 0 200 140" title={title}>
+      <path
+        d="M32 38 C32 112 92 112 92 38"
+        fill="none"
+        stroke={gold}
+        strokeWidth="20"
+        strokeLinecap="butt"
+      />
+      <path
+        d="M92 38 C92 112 152 112 152 38"
+        fill="none"
+        stroke={gold}
+        strokeWidth="20"
+        strokeLinecap="butt"
+      />
+      <text
+        x="100"
+        y="132"
+        textAnchor="middle"
+        fill="#1c1a16"
+        fontFamily={SERIF}
+        fontSize="16"
+        fontWeight="700"
+      >
+        McWaffle
+      </text>
+    </Frame>
+  );
+}
+
+export function AmazoffMark({ className, title = "Amazoff — joke cousin mark" }: MarkProps) {
+  return (
+    <Frame className={className} viewBox="0 0 220 110" title={title}>
+      <text
+        x="110"
+        y="52"
+        textAnchor="middle"
+        fill="#1c1a16"
+        fontFamily={SANS}
+        fontSize="28"
+        fontWeight="700"
+        letterSpacing="-0.5"
+      >
+        amazoff
+      </text>
+      <path
+        d="M28 64 C80 108 140 108 192 64"
+        fill="none"
+        stroke="#c45a12"
+        strokeWidth="7"
+        strokeLinecap="butt"
+      />
+      <path fill="#c45a12" d="M184 58 l16 8 -14 12z" />
+    </Frame>
+  );
+}
+
+export function BullseyeMartMark({ className, title = "Bullseye Mart — joke cousin mark" }: MarkProps) {
+  return (
+    <Frame className={className} viewBox="0 0 180 150" title={title}>
+      <ellipse cx="86" cy="62" rx="58" ry="42" fill="#b42318" />
+      <ellipse cx="98" cy="70" rx="36" ry="26" fill={PAPER} />
+      <ellipse cx="78" cy="54" rx="16" ry="12" fill="#b42318" />
+      <path fill="#c9a24a" d="M78 46 l4 10 11 1 -8 7 2 11 -9 -6 -9 6 2 -11 -8 -7 11 -1z" />
+      <text
+        x="90"
+        y="138"
+        textAnchor="middle"
+        fill="#1c1a16"
+        fontFamily={SANS}
+        fontSize="12"
+        fontWeight="700"
+        letterSpacing="2"
+      >
+        BULLSEYE MART
+      </text>
+    </Frame>
+  );
+}
+
+export function BubbaColaMark({ className, title = "Bubba-Cola — joke cousin mark" }: MarkProps) {
+  const red = "#8f3a32";
+  return (
+    <Frame className={className} viewBox="0 0 220 120" title={title}>
+      <path
+        d="M18 74
+           C28 28 52 22 70 48
+           C82 20 108 18 118 52
+           C128 16 156 24 168 58
+           C178 30 198 34 206 62"
+        fill="none"
+        stroke={red}
+        strokeWidth="10"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M40 78 C48 96 62 100 74 84"
+        fill="none"
+        stroke={red}
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
+      <path
+        d="M96 80 C108 104 128 102 138 78"
+        fill="none"
+        stroke={red}
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
+      <text
+        x="110"
+        y="112"
+        textAnchor="middle"
+        fill={red}
+        fontFamily={SERIF}
+        fontSize="11"
+        letterSpacing="8"
+      >
+        COLA
+      </text>
+    </Frame>
+  );
+}
+
+export function DashDashMark({ className, title = "DashDash — joke cousin mark" }: MarkProps) {
+  const fill = "#1c1a16";
+  return (
+    <Frame className={className} viewBox="0 0 200 130" title={title}>
+      <path fill={fill} d="M28 38 l72 -10 8 22 -72 10z" />
+      <path fill={fill} d="M44 62 l64 8 6 20 -64 -8z" />
+      <path fill={fill} d="M22 88 l78 18 10 18 -78 -18z" />
+      <path fill={fill} d="M118 70 l48 -28 12 20 -48 28z" />
+      <text
+        x="100"
+        y="122"
+        textAnchor="middle"
+        fill={fill}
+        fontFamily={SANS}
+        fontSize="13"
+        fontWeight="800"
+        letterSpacing="3"
+      >
+        DASHDASH
+      </text>
+    </Frame>
+  );
+}
+
+export function StargooseMark({ className, title = "Stargoose — joke cousin mark" }: MarkProps) {
+  const inkFill = "#1f4f4a";
+  return (
+    <Frame className={className} viewBox="0 0 168 168" title={title}>
+      <circle cx="84" cy="78" r="62" fill="none" stroke={inkFill} strokeWidth="6" />
+      <circle cx="84" cy="78" r="52" fill={inkFill} />
+      <path fill={PAPER} d="M84 48 C70 52 58 68 62 86 C66 104 84 118 84 118 C84 118 102 104 106 86 C110 68 98 52 84 48Z" />
+      <path fill={PAPER} d="M108 72 C124 64 132 74 128 86 C122 80 114 78 108 72Z" />
+      <circle cx="76" cy="80" r="4" fill={inkFill} />
+      <path fill="#c9a24a" d="M70 44 l14 -16 14 16 -6 4 h-16z" />
+      <path fill="#c9a24a" d="M76 30 h12 v6 h-12z" />
+      <path fill={PAPER} d="M54 94 l8 6 -4 10 10 -4 6 8 4 -10 10 2 -6 -10 8 -8 -12 2 -4 -10 -6 10z" />
+      <path fill={inkFill} d="M40 148 h88 l-8 -16 H48z" />
+      <text
+        x="84"
+        y="144"
+        textAnchor="middle"
+        fill={PAPER}
+        fontFamily={SANS}
+        fontSize="9"
+        fontWeight="700"
+        letterSpacing="1.5"
+      >
+        STAR GOOSE
+      </text>
+    </Frame>
+  );
+}
+
+export const COUSIN_MARKS = [
+  {
+    id: "niko",
+    name: "Niko",
+    answer: "Nike",
+    options: ["Nike", "Adidas", "Puma", "Reebok"],
+    tease: "A speed mark that got hung upside down.",
+    why: "A motion mark should lean forward, like a stride. Flip it and it sags — a trip, not a launch.",
+    Mark: NikoMark,
+  },
+  {
+    id: "pear",
+    name: "Pear Computing",
+    answer: "Apple",
+    options: ["Apple", "Microsoft", "Dell", "Android"],
+    tease: "The famous fruit, except it is the wrong fruit and the bite is in the cellar.",
+    why: "One fruit + one bite is a complete idea. A pear with a bite on the bottom is a costume, not a mark.",
+    Mark: PearComputingMark,
+  },
+  {
+    id: "waffle",
+    name: "McWaffle",
+    answer: "McDonald's",
+    options: ["McDonald's", "Burger King", "Wendy's", "Taco Bell"],
+    tease: "Golden arches that got tired and sat down.",
+    why: "Those arches are architecture — a letter you can see from the highway. Droop them and they become breakfast, not a landmark.",
+    Mark: McWaffleMark,
+  },
+  {
+    id: "amazoff",
+    name: "Amazoff",
+    answer: "Amazon",
+    options: ["Amazon", "eBay", "FedEx", "UPS"],
+    tease: "A to Z, but the arrow is in a bad mood.",
+    why: "The real idea is a smile that also means A-to-Z. A frown is a complaint, not a promise.",
+    Mark: AmazoffMark,
+  },
+  {
+    id: "bullseye",
+    name: "Bullseye Mart",
+    answer: "Target",
+    options: ["Target", "Walmart", "Costco", "Kmart"],
+    tease: "A bullseye that got sat on, then stuck a star in it.",
+    why: "Concentric circles read as a target even at a glance. Ovals plus a star is a mashed plate.",
+    Mark: BullseyeMartMark,
+  },
+  {
+    id: "bubba",
+    name: "Bubba-Cola",
+    answer: "Coca-Cola",
+    options: ["Coca-Cola", "Pepsi", "Sprite", "Dr Pepper"],
+    tease: "A script so fancy you cannot order the drink.",
+    why: "A signature script can be the whole personality — if you can still read it from a vending machine.",
+    Mark: BubbaColaMark,
+  },
+  {
+    id: "dashdash",
+    name: "DashDash",
+    answer: "Adidas",
+    options: ["Adidas", "Nike", "Puma", "Under Armour"],
+    tease: "Stripes, but four of them, and they cannot agree on a direction.",
+    why: "Repeat plus rhythm is the idea. Four messy dashes are noise. A stack of even bars is a system.",
+    Mark: DashDashMark,
+  },
+  {
+    id: "stargoose",
+    name: "Stargoose",
+    answer: "Starbucks",
+    options: ["Starbucks", "Dunkin'", "Peet's", "Tim Hortons"],
+    tease: "A crowned bird, a seal, a banner, and extra glitter. Too much drawing.",
+    why: "Famous mermaid marks got simpler over the years. A good cousin would crop, not add a goose, a crown, and a parade.",
+    Mark: StargooseMark,
+  },
+];
+

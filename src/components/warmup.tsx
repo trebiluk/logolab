@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { MarkBoard } from "@/components/mark-board";
 import { LAB_BRANDS } from "@/content/marks";
 import { useProgress } from "@/lib/store";
+import { schoolDay } from "@/lib/version";
 import { XP_WARMUP } from "@/lib/xp";
 
 function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  return schoolDay();
 }
 
 function brandForDay(day: string) {
@@ -48,8 +48,8 @@ export function DailyWarmup() {
   if (!hydrated) {
     return (
       <section className="rounded-xl border border-line bg-surface p-5 shadow-[var(--shadow-border)]">
-        <p className="text-xs font-medium uppercase tracking-wider text-teal">
-          Today’s mark · 45 seconds
+        <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-teal">
+          Floor warmup · 45 seconds
         </p>
         <div className="mt-4 h-40 rounded-lg bg-surface-2" />
       </section>
@@ -60,8 +60,8 @@ export function DailyWarmup() {
     <section className="rounded-xl border border-line bg-surface p-5 shadow-[var(--shadow-border)]">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-teal">
-            Today’s mark · 45 seconds
+          <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-teal">
+            Floor warmup · 45 seconds
           </p>
           <h2 className="mt-1 font-display text-2xl font-medium">
             Sketch {brand.name}

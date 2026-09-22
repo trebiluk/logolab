@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen, Printer, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { LogoLockup, LogoMark } from "@/components/logo-mark";
+import { LogoLockup, LogoMark, BertyBot } from "@/components/logo-mark";
 import { MarkBoard } from "@/components/mark-board";
 import { RankStrip } from "@/components/xp-hud";
 import { DailyWarmup } from "@/components/warmup";
@@ -32,22 +32,25 @@ function Home() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <section className="rise-in">
-        <LogoLockup size="lg" className="mb-8" />
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted">
-          {UNIT.grades} · {UNIT.length}
+      <section className="rise-in shop-hero rounded-xl px-4 py-6 sm:px-6 sm:py-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <LogoLockup size="lg" className="mb-0" />
+          <BertyBot className="h-20 w-auto sm:h-24" />
+        </div>
+        <p className="mt-5 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-teal">
+          TechWorks floor · {UNIT.grades} · {UNIT.length}
         </p>
-        <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] sm:text-6xl">
-          How a small mark
-          <span className="block italic text-teal">carries a whole story.</span>
+        <h1 className="mt-2 font-display text-5xl font-medium leading-[1.05] sm:text-6xl">
+          Punch a mark.
+          <span className="block italic text-teal">Inspect it. Ship it.</span>
         </h1>
         <p className="mt-5 max-w-xl text-lg text-ink-soft">
           {UNIT.notAMaker}
         </p>
         {spanish ? (
           <p className="mt-2 max-w-xl text-muted">
-            Esta no es una fábrica de logos. Miramos, nombramos, y dibujamos en
-            papel.
+            No es un generador. Es el taller de TechWorks con BertyBot: miramos,
+            inspeccionamos, y dibujamos en papel.
           </p>
         ) : null}
         <p className="mt-3 max-w-xl text-sm text-muted">
@@ -57,9 +60,9 @@ function Home() {
         <p className="mt-4 flex max-w-xl items-start gap-3 text-sm text-ink-soft">
           <LogoMark variant="bare" className="mt-0.5 size-9" title="" />
           <span>
-            Our house mark is a lettermark. The top counter is a lens. The gold
-            spark sits in the waist — look for it, the way you look for a secret
-            in a wordmark.
+            House die: a stencil B. Square nut on top, wider seat below, brass
+            hex on the spine — a letter you can punch in steel, not two stacked
+            circles.
           </span>
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
@@ -120,7 +123,7 @@ function Home() {
 
       <section className="mt-14">
         <div className="mb-4 flex items-end justify-between gap-3">
-          <h2 className="font-display text-3xl font-medium">The six lessons</h2>
+          <h2 className="font-display text-3xl font-medium">Six stations</h2>
           <Link to="/lessons" className="text-sm text-teal no-underline">
             All lessons
           </Link>
@@ -135,7 +138,7 @@ function Home() {
                   params={{ id: l.id }}
                   className="flex gap-3 rounded-xl border border-line bg-surface p-4 no-underline hover:shadow-[var(--shadow-border-hover)]"
                 >
-                  <span className="font-display text-2xl text-teal tabular-nums">
+                  <span className="font-mono text-2xl font-medium text-teal tabular-nums">
                     {String(l.number).padStart(2, "0")}
                   </span>
                   <span>
@@ -156,7 +159,7 @@ function Home() {
 
       <section className="mt-14 grid gap-3 sm:grid-cols-3">
         {[
-          { to: "/studio" as const, icon: Sparkles, t: "Studio", d: "Sort, silhouette, hidden space, color, type, clinic, words." },
+          { to: "/studio" as const, icon: Sparkles, t: "Shop floor", d: "Sort, silhouette, optical QC, hidden space, color, type, clinic, cousins, words." },
           { to: "/glossary" as const, icon: BookOpen, t: "Words", d: "English, Spanish, and a sentence you can steal." },
           { to: "/printables" as const, icon: Printer, t: "Paper", d: "The making happens off-screen." },
         ].map((c) => (
@@ -173,19 +176,19 @@ function Home() {
       </section>
 
       <section className="mt-14 rounded-xl border border-line bg-surface p-5">
-        <h2 className="font-display text-2xl font-medium">Name this device</h2>
+        <h2 className="font-display text-2xl font-medium">Alias this device</h2>
         <p className="mt-1 text-sm text-muted">
-          XP stays in this browser. A first name helps when you post to the hall.
+          XP stays in this browser. Alias or first name only — never a last name.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <input
             value={studentName}
             onChange={(e) => setStudentName(e.target.value)}
-            placeholder="First name"
+            placeholder="First name or alias"
             autoComplete="nickname"
+            maxLength={18}
             suppressHydrationWarning
             className="h-11 min-w-[10rem] flex-1 rounded-md border border-line bg-paper px-3"
-            maxLength={24}
           />
           <Button type="button" variant="secondary" onClick={() => setRole("student")}>
             I’m a student

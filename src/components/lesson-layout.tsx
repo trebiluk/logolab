@@ -35,8 +35,8 @@ export function LessonLayout({
   return (
     <LessonIdContext.Provider value={lesson.id}>
       <article className="mx-auto max-w-3xl">
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
-          Lesson {lesson.number} · {lesson.duration}
+        <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-teal">
+          Station {String(lesson.number).padStart(2, "0")} · {lesson.duration}
         </p>
         <div className="mt-2 flex items-start gap-2">
           <h1 className="font-display text-4xl font-medium leading-tight">
@@ -64,7 +64,7 @@ export function LessonLayout({
               <Button asChild>
                 <Link to="/studio/$id" params={{ id: lesson.studio }}>
                   <Sparkles className="size-4" />
-                  Studio practice
+                  Floor practice
                 </Link>
               </Button>
             ) : null}
@@ -128,7 +128,7 @@ export function DoNow({ children }: { children: ReactNode }) {
     <section className="rounded-xl border border-line bg-surface p-5">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <p className="text-xs font-medium uppercase tracking-wider text-teal">
-          Do now · 3 minutes
+          Clock in · 3 minutes
         </p>
         <SketchTimer seconds={180} award="timer" />
       </div>

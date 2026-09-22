@@ -6,10 +6,14 @@ import { GLOSSARY } from "@/content/glossary";
 import { LogoMark } from "@/components/logo-mark";
 import {
   AeroLinkMark,
+  AmazoffMark,
   ArcadyMark,
   BurgerBlastMark,
   LAB_BRANDS,
+  McWaffleMark,
+  NikoMark,
   NorthParkMark,
+  PearComputingMark,
   SpeedyBoxMark,
 } from "@/content/marks";
 import { PRINTABLES, LESSONS, STUDIO, UNIT } from "@/content/unit";
@@ -78,8 +82,8 @@ export function PrintablePage({ id }: { id: string }) {
         <header className="mb-5 border-b border-ink pb-3">
           <div className="flex items-center gap-2">
             <LogoMark className="size-7 print:size-6" />
-            <p className="text-[11px] uppercase tracking-[0.2em] text-muted">
-              BertyBot's LogoLab · Grades 6–8 · {meta.audience}
+            <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+              TechWorks · BertyBot’s LogoLab · Grades 6–8 · {meta.audience}
             </p>
           </div>
           <h1 className="font-display text-3xl font-medium">{meta.title}</h1>
@@ -109,6 +113,7 @@ const BODIES: Record<string, () => ReactNode> = {
   "letter-as-logo": LetterAsLogo,
   "design-brief": DesignBrief,
   "critique-sheet": CritiqueSheet,
+  "cousin-hunt": CousinHunt,
   "teacher-pacing": TeacherPacing,
   certificate: Certificate,
 };
@@ -418,6 +423,42 @@ function CritiqueSheet() {
   );
 }
 
+function CousinHunt() {
+  const rows = [
+    { name: "Niko", Mark: NikoMark, hint: "Speed mark, hanging the wrong way." },
+    { name: "Pear Computing", Mark: PearComputingMark, hint: "Wrong fruit. Bite in the cellar." },
+    { name: "McWaffle", Mark: McWaffleMark, hint: "Golden architecture that sat down." },
+    { name: "Amazoff", Mark: AmazoffMark, hint: "A to Z, but the arrow is in a bad mood." },
+  ];
+  return (
+    <div className="space-y-4 text-sm">
+      <p>
+        These are joke cousins — invented knockoffs. Look, then write the
+        famous brand from memory. Do not draw the real logo.
+      </p>
+      <p>Name __________________  Date ________</p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {rows.map((r) => (
+          <div key={r.name} className="rounded-md border border-line p-3">
+            <div className="mx-auto h-28 w-40">
+              <r.Mark />
+            </div>
+            <p className="mt-2 font-medium">{r.name}</p>
+            <p className="text-xs text-muted">{r.hint}</p>
+            <p className="mt-2">Teasing: ________________________</p>
+            <p className="mt-1">It fails because _________________</p>
+          </div>
+        ))}
+      </div>
+      <p className="font-medium">Frame</p>
+      <p>
+        This copycat is teasing ________, but it fails because ________.
+      </p>
+      <Line n={2} />
+    </div>
+  );
+}
+
 function TeacherPacing() {
   return (
     <div className="space-y-3 text-sm">
@@ -429,7 +470,7 @@ function TeacherPacing() {
         <li>Lesson 3 (day B): hidden-space hunt + worksheet.</li>
         <li>Lesson 4 + color lab + color chart.</li>
         <li>Lesson 5 + type fit + letter-as-logo.</li>
-        <li>Lesson 6 clinic. Assign paper brief.</li>
+        <li>Lesson 6 clinic + guess-the-cousin. Assign paper brief.</li>
         <li>Studio / drawing day. Constraints on the wall.</li>
         <li>Peer critique with frames + rubric.</li>
         <li>Gallery walk + reflection. Optional: one-color print of finals.</li>
@@ -439,6 +480,7 @@ function TeacherPacing() {
         <li>AeroLink hidden: arrow. Arcady: A→Y path. North Park: book in leaf. Foxfire: one ear is a flame.</li>
         <li>Foxfire, Beacon, North Park: pictorial. Stride, Pact: abstract. Quill, Harbor, AeroLink: wordmark. Red Rail: lettermark. Summit, Arcady: combination. Mesa: emblem.</li>
         <li>Burger Blast / Star Tutors / IRON GYM: too many fonts + effects. Zippy: contrast. NiteOwl: off-brand neon.</li>
+        <li>Cousins (from memory): Niko→Nike, Pear→Apple, McWaffle→McDonald's, Amazoff→Amazon, Bullseye Mart→Target, Bubba-Cola→Coca-Cola, DashDash→Adidas, Stargoose→Starbucks.</li>
       </ul>
       <p className="font-medium">ELL moves (always on)</p>
       <ul className="list-disc space-y-1 pl-5">

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { aliasForBoard } from "@/lib/version";
 import {
   XP_PER_LESSON,
   XP_STAR,
@@ -84,30 +85,26 @@ const empty = {
   lastGain: null as XpGain | null,
 };
 
-function applyXp(
-  get: () => ProgressState,
-  set: (p: Partial<ProgressState>) => void,
+function xpPatch(
+  state: { xp: number; highScore: number },
   amount: number,
   reason: string,
-) {
-  if (amount <= 0) {
-    set({ lastGain: null });
-    return;
-  }
-  const prev = get().xp;
+): { xp: number; highScore: number; lastGain: XpGain | null } {
+  if (amount <= 0) return { xp: state.xp, highScore: state.highScore, lastGain: null };
+  const prev = state.xp;
   const xp = prev + amount;
   const prevRank = rankFor(prev).name;
   const rank = rankFor(xp).name;
-  set({
+  return {
     xp,
-    highScore: Math.max(get().highScore, xp),
+    highScore: Math.max(state.highScore, xp),
     lastGain: {
       amount,
       reason,
       levelUp: rank !== prevRank && xp > prev,
       rank,
     },
-  });
+  };
 }
 
 export const useProgress = create<ProgressState>()(
@@ -117,81 +114,96 @@ export const useProgress = create<ProgressState>()(
       ...empty,
       setHydrated: (v) => set({ hydrated: v }),
       setRole: (role) => set({ role }),
-      setStudentName: (studentName) => set({ studentName }),
+      setStudentName: (studentName) => set({ studentName: aliasForBoard(studentName) }),
       setSpanish: (spanish) => set({ spanish }),
       setLargeType: (largeType) => set({ largeType }),
       completeLesson: (id) => {
-        if (get().completedLessons.includes(id)) return;
-        set({ completedLessons: [...get().completedLessons, id] });
-        applyXp(get, set, XP_PER_LESSON, "Lesson complete");
+        const s = get();
+        if (s.completedLessons.includes(id)) return;
+        set({
+          completedLessons: [...s.completedLessons, id],
+          ...xpPatch(s, XP_PER_LESSON, "Station complete"),
+        });
       },
       recordActivity: (id, score, total) => {
+        const s = get();
         const pct = total === 0 ? 0 : Math.round((score / total) * 100);
-        const prevCorrect = get().activityCorrect[id] ?? 0;
-        const prevPct = get().activityBest[id] ?? 0;
+        const prevCorrect = s.activityCorrect[id] ?? 0;
+        const prevPct = s.activityBest[id] ?? 0;
         const delta = Math.max(0, score - prevCorrect);
         const newlyPerfect = score >= total && prevCorrect < total;
         const amount = studioXp(delta, newlyPerfect);
         set({
-          activityBest: { ...get().activityBest, [id]: Math.max(prevPct, pct) },
+          activityBest: { ...s.activityBest, [id]: Math.max(prevPct, pct) },
           activityCorrect: {
-            ...get().activityCorrect,
+            ...s.activityCorrect,
             [id]: Math.max(prevCorrect, score),
           },
-          activityDone: get().activityDone.includes(id)
-            ? get().activityDone
-            : [...get().activityDone, id],
+          activityDone: s.activityDone.includes(id)
+            ? s.activityDone
+            : [...s.activityDone, id],
+          ...xpPatch(
+            s,
+            amount,
+            newlyPerfect ? "Clean die" : "Floor best",
+          ),
         });
-        applyXp(
-          get,
-          set,
-          amount,
-          newlyPerfect ? "Perfect studio" : "Studio best",
-        );
       },
       toggleStar: (id) => {
-        const starred = get().starredTerms.includes(id);
+        const s = get();
+        const starred = s.starredTerms.includes(id);
         if (starred) {
-          set({ starredTerms: get().starredTerms.filter((t) => t !== id) });
+          set({ starredTerms: s.starredTerms.filter((t) => t !== id) });
           return;
         }
-        set({ starredTerms: [...get().starredTerms, id] });
-        if (!get().starAwarded.includes(id)) {
-          set({ starAwarded: [...get().starAwarded, id] });
-          applyXp(get, set, XP_STAR, "Word bank");
-        }
+        const awarded = s.starAwarded.includes(id);
+        set({
+          starredTerms: [...s.starredTerms, id],
+          starAwarded: awarded ? s.starAwarded : [...s.starAwarded, id],
+          ...(awarded ? {} : xpPatch(s, XP_STAR, "Word bank")),
+        });
       },
       saveTicket: (lessonId, text) => {
+        const s = get();
         const trimmed = text.trim();
-        set({ tickets: { ...get().tickets, [lessonId]: trimmed } });
-        if (trimmed.length >= 8 && !get().ticketAwarded.includes(lessonId)) {
-          set({ ticketAwarded: [...get().ticketAwarded, lessonId] });
-          applyXp(get, set, XP_TICKET, "Exit ticket");
-        }
+        const award = trimmed.length >= 8 && !s.ticketAwarded.includes(lessonId);
+        set({
+          tickets: { ...s.tickets, [lessonId]: trimmed },
+          ticketAwarded: award
+            ? [...s.ticketAwarded, lessonId]
+            : s.ticketAwarded,
+          ...(award ? xpPatch(s, XP_TICKET, "Job ticket") : {}),
+        });
       },
       awardTimer: (lessonId) => {
-        if (get().timerAwarded.includes(lessonId)) return;
-        set({ timerAwarded: [...get().timerAwarded, lessonId] });
-        applyXp(get, set, XP_TIMER, "Do now");
+        const s = get();
+        if (s.timerAwarded.includes(lessonId)) return;
+        set({
+          timerAwarded: [...s.timerAwarded, lessonId],
+          ...xpPatch(s, XP_TIMER, "Clock in"),
+        });
       },
       awardWarmup: (day) => {
-        if (get().warmupDay === day) return;
-        set({ warmupDay: day });
-        applyXp(get, set, XP_WARMUP, "Daily sketch");
+        const s = get();
+        if (s.warmupDay === day) return;
+        set({
+          warmupDay: day,
+          ...xpPatch(s, XP_WARMUP, "Daily sketch"),
+        });
       },
       clearGain: () => set({ lastGain: null }),
       postHall: () => {
-        const name = get().studentName.trim() || "Player";
-        const xp = get().xp;
-        if (xp <= 0) return;
-        const rank = rankFor(xp).name;
-        const rest = get().hall.filter(
+        const s = get();
+        const name = aliasForBoard(s.studentName) || "Player";
+        if (s.xp <= 0) return;
+        const rank = rankFor(s.xp).name;
+        const rest = s.hall.filter(
           (h) => h.name.toLowerCase() !== name.toLowerCase(),
         );
-        const hall = [...rest, { name, xp, rank, at: Date.now() }]
+        const hall = [...rest, { name, xp: s.xp, rank, at: Date.now() }]
           .sort((a, b) => b.xp - a.xp || b.at - a.at)
           .slice(0, 12);
-        set({ hall });
+        set({ hall, studentName: name });
       },
       clearHall: () => set({ hall: [] }),
       reset: () =>
@@ -204,6 +216,7 @@ export const useProgress = create<ProgressState>()(
     }),
     {
       name: "logo-lab-progress",
+      version: 2,
       partialize: (s) => ({
         role: s.role,
         studentName: s.studentName,
@@ -223,6 +236,31 @@ export const useProgress = create<ProgressState>()(
         highScore: s.highScore,
         hall: s.hall,
       }),
+      migrate: (persisted) => {
+        const p = { ...empty, ...((persisted ?? {}) as Partial<ProgressState>) };
+        return {
+          role: p.role,
+          studentName: aliasForBoard(p.studentName ?? ""),
+          spanish: p.spanish,
+          largeType: p.largeType,
+          completedLessons: p.completedLessons ?? [],
+          activityBest: p.activityBest ?? {},
+          activityCorrect: p.activityCorrect ?? {},
+          activityDone: p.activityDone ?? [],
+          starredTerms: p.starredTerms ?? [],
+          starAwarded: p.starAwarded ?? [],
+          tickets: p.tickets ?? {},
+          ticketAwarded: p.ticketAwarded ?? [],
+          timerAwarded: p.timerAwarded ?? [],
+          warmupDay: p.warmupDay ?? "",
+          xp: p.xp ?? 0,
+          highScore: p.highScore ?? 0,
+          hall: (p.hall ?? []).map((h) => ({
+            ...h,
+            name: aliasForBoard(h.name) || "Player",
+          })),
+        };
+      },
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);
       },
@@ -234,7 +272,15 @@ export const useProgress = create<ProgressState>()(
           tickets: p.tickets ?? {},
           ticketAwarded: p.ticketAwarded ?? [],
           timerAwarded: p.timerAwarded ?? [],
+          activityBest: p.activityBest ?? {},
+          activityCorrect: p.activityCorrect ?? {},
+          activityDone: p.activityDone ?? [],
+          completedLessons: p.completedLessons ?? [],
+          starredTerms: p.starredTerms ?? [],
+          starAwarded: p.starAwarded ?? [],
+          hall: p.hall ?? [],
           warmupDay: p.warmupDay ?? "",
+          studentName: aliasForBoard(p.studentName ?? ""),
         };
       },
     },

@@ -272,6 +272,18 @@ export const GLOSSARY: Term[] = [
     example: "The identity is bigger than one sticker.",
     cognate: true,
   },
+  {
+    id: "copycat",
+    term: "copycat / cousin",
+    ipa: "KOP-ee-kat / KUH-zin",
+    termEs: "copia / marca prima",
+    simple:
+      "A joke logo that teases a famous one on purpose, without copying the real drawing. You name the real brand from memory.",
+    simpleEs:
+      "Un logo de broma que imita la idea de uno famoso, sin copiar el dibujo real. Nombras la marca de memoria.",
+    example: "Niko’s upside-down ribbon is a cousin of a famous speed mark — we never draw the real one.",
+    related: ["mark", "silhouette"],
+  },
 ];
 
 export function getTerm(id: string) {

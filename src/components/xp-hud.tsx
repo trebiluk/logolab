@@ -120,7 +120,7 @@ export function RankStrip() {
           <p className="mt-1 text-sm text-muted">
             {next
               ? `${need} XP to ${spanish ? next.nameEs : next.name}`
-              : "Top rank. Keep a perfect studio streak."}
+              : "Top rank. Keep a clean die on the floor."}
           </p>
         </div>
         <Button asChild>

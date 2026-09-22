@@ -8,6 +8,8 @@ import { LogoMark } from "@/components/logo-mark";
 import { LESSONS, STUDIO } from "@/content/unit";
 import { useProgress } from "@/lib/store";
 import { RANKS, bragText, pinIdsEarned, PINS, rankFor, studioMaxXp } from "@/lib/xp";
+import { APP_CHIP } from "@/lib/version";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/score")({ component: ScorePage });
 
@@ -66,13 +68,14 @@ function ScorePage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted">
-        Score · this device
+      <p className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-teal">
+        Score · this device · {APP_CHIP}
       </p>
       <h1 className="mt-2 font-display text-4xl font-medium">Brag board</h1>
       <p className="mt-2 text-ink-soft">
-        XP stays in this browser — Chromebook, Windows 11, Chrome or Edge. Beat
-        your high score, then post it to the hall on this machine.
+        XP stays in this browser — Chromebook, Windows 11, Chrome or Edge. It is
+        brag, not a grade. Beat your high score, then post an alias to the hall
+        on this machine.
       </p>
 
       <article
@@ -97,6 +100,11 @@ function ScorePage() {
           High score {highScore}
         </p>
         <LevelLine className="mt-5" />
+        <PunchCard
+          lessons={completed}
+          studios={done}
+          className="mt-5"
+        />
         <ul className="mt-5 flex flex-wrap gap-2">
           <Badge>
             {completed.length}/{LESSONS.length} lessons
@@ -191,17 +199,18 @@ function ScorePage() {
       <section className="no-print mt-10">
         <h2 className="font-display text-2xl font-medium">Post to this device</h2>
         <p className="mt-1 text-sm text-ink-soft">
-          Shared Chromebook? Add your name, post, and leave the hall up. Scores
-          do not travel to other computers.
+          Shared Chromebook? Alias or first name only — never a last name. Post
+          and leave the hall up. Scores do not travel to other computers.
         </p>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
           <label className="block flex-1 text-sm">
-            <span className="mb-1 block font-medium">Name on the board</span>
+            <span className="mb-1 block font-medium">Alias on the board</span>
             <input
               value={name}
               onChange={(e) => setStudentName(e.target.value)}
-              placeholder="First name"
+              placeholder="First name or alias"
               autoComplete="nickname"
+              maxLength={18}
               className="h-11 w-full rounded-md border border-line bg-surface px-3 text-ink"
             />
           </label>
@@ -250,13 +259,14 @@ function ScorePage() {
       <section className="no-print mt-10">
         <h2 className="font-display text-2xl font-medium">How to earn</h2>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-ink-soft">
-          <li>Finish a lesson: 100 XP (once).</li>
-          <li>Beat your studio best: 15 XP per extra correct. Perfect run: +40.</li>
+          <li>Finish a station: 100 XP (once).</li>
+          <li>Beat your floor best: 15 XP per extra correct. Perfect run: +40.</li>
           <li>Star a glossary word: 8 XP (once per word).</li>
-          <li>Start a Do now timer: 6 XP (once per lesson).</li>
-          <li>Save an exit ticket: 10 XP (once per lesson).</li>
-          <li>Today’s sketch warmup: 8 XP (once a day).</li>
+          <li>Clock in a Do now timer: 6 XP (once per station).</li>
+          <li>Save a job ticket: 10 XP (once per station).</li>
+          <li>Today’s sketch warmup: 8 XP (once a school day, Eastern Time).</li>
           <li>Replays only pay if you score higher than last time.</li>
+          <li>XP does not change a 3/2/1 or a 1–4. It is a brag chip.</li>
         </ul>
         <ul className="mt-4 space-y-2">
           {STUDIO.map((s) => (
@@ -273,5 +283,48 @@ function ScorePage() {
         </ul>
       </section>
     </div>
+  );
+}
+
+function PunchCard({
+  lessons,
+  studios,
+  className,
+}: {
+  lessons: string[];
+  studios: string[];
+  className?: string;
+}) {
+  return (
+    <div className={cn("rounded-md border border-dashed border-line-strong p-3", className)}>
+      <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
+        Punch card
+      </p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {LESSONS.map((l) => (
+          <Stamp key={l.id} on={lessons.includes(l.id)} label={`S${l.number}`} />
+        ))}
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {STUDIO.map((s) => (
+          <Stamp key={s.id} on={studios.includes(s.id)} label={s.title.slice(0, 3)} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Stamp({ on, label }: { on: boolean; label: string }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex h-7 min-w-7 items-center justify-center rounded-sm border px-1 font-mono text-[10px] uppercase",
+        on
+          ? "border-teal bg-teal text-paper"
+          : "border-line bg-paper text-faint",
+      )}
+    >
+      {label}
+    </span>
   );
 }

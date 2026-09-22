@@ -16,9 +16,11 @@ import {
   LAB_BRANDS,
   LumenMark,
   MesaMark,
+  NikoMark,
   NorthParkMark,
   OakInkMark,
   PactMark,
+  PearComputingMark,
   PineSoapMark,
   QuillMark,
   RedRailMark,
@@ -218,7 +220,9 @@ function LessonSimple() {
         </p>
         <label className="mt-4 block text-sm">
           Size{" "}
-          <span className="tabular-nums text-muted">{size}%</span>
+          <span className="tabular-nums text-muted">
+            {size}% · ~{Math.round(160 * (size / 100))}px
+          </span>
           <input
             type="range"
             min={12}
@@ -272,6 +276,10 @@ function LessonSimple() {
         Practice:{" "}
         <Link to="/studio/$id" params={{ id: "silhouette" }} className="text-teal">
           silhouette quiz
+        </Link>
+        {" · "}
+        <Link to="/studio/$id" params={{ id: "scale" }} className="text-teal">
+          optical QC
         </Link>
         . Paper:{" "}
         <Link to="/printables/$id" params={{ id: "simplify" }} className="text-teal">
@@ -661,6 +669,33 @@ function LessonCritique() {
             ) : null}
           </p>
         ) : null}
+      </section>
+      <section>
+        <h2 className="font-display text-2xl font-medium">Copycat cousins</h2>
+        <p className="mt-2 text-ink-soft">
+          A cousin is a joke knockoff. It teases a famous mark without drawing
+          the real one. Name the brand from memory — then say what the copycat
+          got wrong.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <MarkBoard caption="Niko" kind="cousin">
+            <NikoMark />
+          </MarkBoard>
+          <MarkBoard caption="Pear Computing" kind="cousin">
+            <PearComputingMark />
+          </MarkBoard>
+        </div>
+        <p className="mt-3 text-sm text-muted">
+          Hint: one is a speed mark hanging the wrong way. One is the wrong
+          fruit with the bite in the cellar.
+        </p>
+        <p className="mt-3 text-sm text-ink-soft">
+          Full round of eight:{" "}
+          <Link to="/studio/$id" params={{ id: "cousins" }} className="text-teal">
+            Guess the cousin
+          </Link>
+          .
+        </p>
       </section>
       <section>
         <h2 className="font-display text-2xl font-medium">Good invented marks</h2>

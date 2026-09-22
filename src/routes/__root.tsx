@@ -19,9 +19,9 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "BertyBot's LogoLab — a grades 6–8 unit on how logos work. Original lab brands, broken invented logos, diagrams, studio games, and a brag-board high score. Built with English learners in mind.",
+          "BertyBot's LogoLab — TechWorks shop floor for grades 6–8. How logos work: original lab brands, broken marks, joke cousins, studio games, and a brag-board high score.",
       },
-      { name: "theme-color", content: "#f3efe6" },
+      { name: "theme-color", content: "#1f4f4a" },
       { name: "color-scheme", content: "light" },
     ],
     links: [
