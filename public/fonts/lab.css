@@ -1,0 +1,15 @@
+/* Self-hosted. Chromebooks never fetch Google Fonts. */
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500 700;
+  src: url("./fraunces-latin-wght.woff2") format("woff2-variations");
+}
+@font-face {
+  font-family: "Source Sans 3";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 700;
+  src: url("./source-sans-3-latin-wght.woff2") format("woff2-variations");
+}

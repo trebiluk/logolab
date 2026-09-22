@@ -8,6 +8,10 @@
   ],
   "rewrites": [
     {
+      "source": "/logolab/fonts/:path*",
+      "destination": "/fonts/:path*"
+    },
+    {
       "source": "/logolab/assets/:path*",
       "destination": "/assets/:path*"
     },
