@@ -17,6 +17,15 @@ Open the Tech Room tile **LogoLab**. Students can:
 
 Famous real logos stay in talk and paper sketches — they are not copied on screen.
 
+## KuliNet design examples
+
+StyleBot’s KuliNet pack for this looking unit (Diego / Flo). Not wired into the student app, and not a hub-tile swap on apps.kulibert.net.
+
+- [LogoLab design examples brief](docs/stylebot-examples/STYLEBOT-LOGOLAB-DESIGN-EXAMPLES.md)
+- [Parent brand kit](docs/brand/kulinet/STYLEBOT-KULINET-BRAND.md)
+- [Hub icon file map](docs/brand/kulinet/STYLEBOT-HUB-ICON-SYSTEM.md) — names and sizes only; live hub HTML stays on HOLD
+- [Family logo board](docs/brand/kulinet/kulinet-family-logo-board.png)
+
 ## Deploy
 
 Vercel project **logolab**, GitHub `trebiluk/logolab` `main`. Auth off. No database.
