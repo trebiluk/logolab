@@ -27,8 +27,9 @@ function Teacher() {
         </p>
         <h1 className="mt-2 font-display text-4xl font-medium">{UNIT.name}</h1>
         <p className="mt-2 text-ink-soft">
-          {UNIT.grades} · {UNIT.length}. BertyBot’s mark factory: looking on
-          screen, making on paper. Not a logo generator.
+          {UNIT.grades} · {UNIT.length}. Looking on the floor, a mark bench for
+          original text and shapes, and paper copies. Files stay on the device.
+          Real trademarks are not copied.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button onClick={() => setRole("teacher")} variant="secondary">

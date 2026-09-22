@@ -8,7 +8,7 @@ export const UNIT = {
   drivingQuestionEs:
     "¿Cómo hacen los diseñadores una marca que la gente recuerda y en la que confía?",
   notAMaker:
-    "BertyBot runs this TechWorks shop floor. It is a looking-and-thinking factory, not a logo generator. We punch original lab brands, inspect broken marks, tease famous cousins, then draw on paper. Famous real logos stay in memory — never as cheap copies on screen.",
+    "BertyBot runs this TechWorks shop floor. Look, sort, and critique first. The mark bench stamps your own words and shapes on this Chromebook and saves SVG or PNG here — it does not invent a logo and it does not copy real trademarks. Famous logos stay in memory.",
   fairUse:
     "Lab brands and joke cousins are original study marks made for this class. Real company logos are not copied here — they are owned, and a weak tracing is worse than none. Cousins tease an idea so you can name the real brand from memory.",
 };

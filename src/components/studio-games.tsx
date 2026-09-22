@@ -1057,6 +1057,12 @@ export function StudioIndex() {
         Short looking games. Touch, click, or keys 1–9. Press ? for the key card.
         Scores and XP stay on this device — brag, not a grade.
       </p>
+      <Link
+        to="/bench"
+        className="mt-4 flex h-11 items-center rounded-md border border-line bg-surface px-3 text-sm text-ink no-underline"
+      >
+        Mark bench — stamp text and shapes, save SVG or PNG here
+      </Link>
       <ul className="mt-8 grid gap-3 sm:grid-cols-2">
         {STUDIO.map((s) => (
           <li key={s.id}>

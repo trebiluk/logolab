@@ -46,6 +46,8 @@ export function FloorKeys() {
           <dd>Pick an answer</dd>
           <dt className="font-mono text-teal">Enter</dt>
           <dd>Submit a clinic · replay a finished game</dd>
+          <dt className="font-mono text-teal">Delete</dt>
+          <dd>Remove the selected shape on the mark bench</dd>
           <dt className="font-mono text-teal">?</dt>
           <dd>This card</dd>
           <dt className="font-mono text-teal">Esc</dt>

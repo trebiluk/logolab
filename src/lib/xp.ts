@@ -5,6 +5,7 @@ export const XP_STAR = 8;
 export const XP_TIMER = 6;
 export const XP_TICKET = 10;
 export const XP_WARMUP = 8;
+export const XP_BENCH = 12;
 export const XP_PER_LEVEL = 120;
 
 export const RANKS = [

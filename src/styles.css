@@ -202,3 +202,8 @@
   border: 1px solid var(--color-line);
   box-shadow: var(--shadow-border);
 }
+
+.mark-press .canvas-container {
+  margin-inline: auto;
+  touch-action: none;
+}

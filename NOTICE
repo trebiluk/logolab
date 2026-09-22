@@ -1,0 +1,13 @@
+LogoLab — third-party notices
+
+This file must stay with the app. Do not delete LICENSE or NOTICE.
+
+Fabric.js 7.4.0
+Copyright (c) 2008-2015 Printio (Juriy Zaytsev, Maxim Chernyak)
+Copyright (c) 2016-present Andrea Bogazzi, Shachar Nen and Fabric.js contributors
+License: MIT
+Source: https://github.com/fabricjs/fabric.js
+The full MIT text is in LICENSE.
+
+Used only for the mark bench: text and shapes on a canvas, then a local
+SVG or PNG download. Student marks are not uploaded.

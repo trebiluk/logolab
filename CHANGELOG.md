@@ -2,6 +2,11 @@
 
 Chip lives in `src/lib/version.ts` as `APP_CHIP`. One string: header, About, this file.
 
+## LL 1.2.0 — 2026-09-22
+
+- Mark bench. Text and shapes with Fabric.js (MIT). See LICENSE and NOTICE.
+- Save SVG or PNG on this Chromebook. Nothing is uploaded.
+
 ## LL 1.1.1 — 2026-09-22
 
 - Chromebook pass. Fonts live on this door — no Google Fonts fetch.

@@ -7,6 +7,7 @@ import {
   XP_TICKET,
   XP_TIMER,
   XP_WARMUP,
+  XP_BENCH,
   rankFor,
   studioXp,
 } from "@/lib/xp";
@@ -43,6 +44,7 @@ type ProgressState = {
   ticketAwarded: string[];
   timerAwarded: string[];
   warmupDay: string;
+  benchAwarded: boolean;
   xp: number;
   highScore: number;
   hall: HallEntry[];
@@ -58,6 +60,7 @@ type ProgressState = {
   saveTicket: (lessonId: string, text: string) => void;
   awardTimer: (lessonId: string) => void;
   awardWarmup: (day: string) => void;
+  awardBench: () => void;
   clearGain: () => void;
   postHall: () => void;
   clearHall: () => void;
@@ -79,6 +82,7 @@ const empty = {
   ticketAwarded: [] as string[],
   timerAwarded: [] as string[],
   warmupDay: "",
+  benchAwarded: false,
   xp: 0,
   highScore: 0,
   hall: [] as HallEntry[],
@@ -191,6 +195,14 @@ export const useProgress = create<ProgressState>()(
           ...xpPatch(s, XP_WARMUP, "Daily sketch"),
         });
       },
+      awardBench: () => {
+        const s = get();
+        if (s.benchAwarded) return;
+        set({
+          benchAwarded: true,
+          ...xpPatch(s, XP_BENCH, "Mark shipped"),
+        });
+      },
       clearGain: () => set({ lastGain: null }),
       postHall: () => {
         const s = get();
@@ -232,6 +244,7 @@ export const useProgress = create<ProgressState>()(
         ticketAwarded: s.ticketAwarded,
         timerAwarded: s.timerAwarded,
         warmupDay: s.warmupDay,
+        benchAwarded: s.benchAwarded,
         xp: s.xp,
         highScore: s.highScore,
         hall: s.hall,
@@ -253,6 +266,7 @@ export const useProgress = create<ProgressState>()(
           ticketAwarded: p.ticketAwarded ?? [],
           timerAwarded: p.timerAwarded ?? [],
           warmupDay: p.warmupDay ?? "",
+          benchAwarded: p.benchAwarded ?? false,
           xp: p.xp ?? 0,
           highScore: p.highScore ?? 0,
           hall: (p.hall ?? []).map((h) => ({
@@ -280,6 +294,7 @@ export const useProgress = create<ProgressState>()(
           starAwarded: p.starAwarded ?? [],
           hall: p.hall ?? [],
           warmupDay: p.warmupDay ?? "",
+          benchAwarded: p.benchAwarded ?? false,
           studentName: aliasForBoard(p.studentName ?? ""),
         };
       },

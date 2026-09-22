@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, Printer, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, PenLine, Printer, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LogoLockup, LogoMark, BertyBot } from "@/components/logo-mark";
@@ -49,8 +49,8 @@ function Home() {
         </p>
         {spanish ? (
           <p className="mt-2 max-w-xl text-muted">
-            No es un generador. Es el taller de TechWorks con BertyBot: miramos,
-            inspeccionamos, y dibujamos en papel.
+            No inventa logos y no copia marcas reales. El banco estampa tus
+            palabras y formas, y guarda SVG o PNG en este Chromebook.
           </p>
         ) : null}
         <p className="mt-3 max-w-xl text-sm text-muted">
@@ -80,6 +80,9 @@ function Home() {
                 <ArrowRight className="size-4" />
               </Link>
             )}
+          </Button>
+          <Button asChild size="lg" variant="secondary">
+            <Link to="/bench">Mark bench</Link>
           </Button>
           <Button asChild size="lg" variant="secondary">
             <Link to="/teacher">Teacher guide</Link>
@@ -157,11 +160,12 @@ function Home() {
         </ol>
       </section>
 
-      <section className="mt-14 grid gap-3 sm:grid-cols-3">
+      <section className="mt-14 grid gap-3 sm:grid-cols-2">
         {[
+          { to: "/bench" as const, icon: PenLine, t: "Mark bench", d: "Text and shapes. Save SVG or PNG on this Chromebook." },
           { to: "/studio" as const, icon: Sparkles, t: "Shop floor", d: "Sort, silhouette, optical QC, hidden space, color, type, clinic, cousins, words." },
           { to: "/glossary" as const, icon: BookOpen, t: "Words", d: "English, Spanish, and a sentence you can steal." },
-          { to: "/printables" as const, icon: Printer, t: "Paper", d: "The making happens off-screen." },
+          { to: "/printables" as const, icon: Printer, t: "Paper", d: "The making still happens on paper too." },
         ].map((c) => (
           <Link
             key={c.t}

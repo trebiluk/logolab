@@ -4,12 +4,13 @@ import {
   ClipboardList,
   Home,
   Languages,
+  PenLine,
   Printer,
   Sparkles,
   Trophy,
   Type,
 } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, type ReactNode, Fragment } from "react";
 import { Button } from "@/components/ui/button";
 import { FloorKeys } from "@/components/floor-keys";
 import { LogoMark } from "@/components/logo-mark";
@@ -134,20 +135,36 @@ export function AppShell({ children }: { children: ReactNode }) {
                 ? pathname === "/"
                 : pathname === item.to || pathname.startsWith(`${item.to}/`);
             return (
-              <Link
-                key={item.to}
-                to={item.to}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "flex h-11 items-center gap-2 rounded-md px-3 text-sm no-underline",
-                  active
-                    ? "bg-teal text-paper"
-                    : "text-ink-soft hover:bg-surface-2 focus-visible:bg-surface-2",
-                )}
-              >
-                <item.icon className="size-4" />
-                {item.label}
-              </Link>
+              <Fragment key={item.to}>
+                <Link
+                  to={item.to}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "flex h-11 items-center gap-2 rounded-md px-3 text-sm no-underline",
+                    active
+                      ? "bg-teal text-paper"
+                      : "text-ink-soft hover:bg-surface-2 focus-visible:bg-surface-2",
+                  )}
+                >
+                  <item.icon className="size-4" />
+                  {item.label}
+                </Link>
+                {item.to === "/studio" ? (
+                  <Link
+                    to="/bench"
+                    aria-current={pathname === "/bench" ? "page" : undefined}
+                    className={cn(
+                      "flex h-11 items-center gap-2 rounded-md px-3 text-sm no-underline",
+                      pathname === "/bench"
+                        ? "bg-teal text-paper"
+                        : "text-ink-soft hover:bg-surface-2 focus-visible:bg-surface-2",
+                    )}
+                  >
+                    <PenLine className="size-4" />
+                    Bench
+                  </Link>
+                ) : null}
+              </Fragment>
             );
           })}
           <Link

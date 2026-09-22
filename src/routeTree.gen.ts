@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BenchRouteImport } from './routes/bench'
 import { Route as GlossaryRouteImport } from './routes/glossary'
 import { Route as ScoreRouteImport } from './routes/score'
 import { Route as TeacherRouteImport } from './routes/teacher'
@@ -23,6 +24,11 @@ import { Route as StudioIdRouteImport } from './routes/studio/$id'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BenchRoute = BenchRouteImport.update({
+  id: '/bench',
+  path: '/bench',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GlossaryRoute = GlossaryRouteImport.update({
@@ -73,6 +79,7 @@ const StudioIdRoute = StudioIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bench': typeof BenchRoute
   '/glossary': typeof GlossaryRoute
   '/score': typeof ScoreRoute
   '/teacher': typeof TeacherRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bench': typeof BenchRoute
   '/glossary': typeof GlossaryRoute
   '/score': typeof ScoreRoute
   '/teacher': typeof TeacherRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bench': typeof BenchRoute
   '/glossary': typeof GlossaryRoute
   '/score': typeof ScoreRoute
   '/teacher': typeof TeacherRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bench'
     | '/glossary'
     | '/score'
     | '/teacher'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bench'
     | '/glossary'
     | '/score'
     | '/teacher'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/bench'
     | '/glossary'
     | '/score'
     | '/teacher'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BenchRoute: typeof BenchRoute
   GlossaryRoute: typeof GlossaryRoute
   ScoreRoute: typeof ScoreRoute
   TeacherRoute: typeof TeacherRoute
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bench': {
+      id: '/bench'
+      path: '/bench'
+      fullPath: '/bench'
+      preLoaderRoute: typeof BenchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/glossary': {
@@ -237,6 +257,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BenchRoute: BenchRoute,
   GlossaryRoute: GlossaryRoute,
   ScoreRoute: ScoreRoute,
   TeacherRoute: TeacherRoute,

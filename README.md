@@ -1,10 +1,12 @@
 # BertyBot's LogoLab
 
-Chip **LL 1.1.1**. Grades 6–8 looking-and-thinking unit on how logos work. BertyBot runs the TechWorks shop floor: original lab brands, broken clinic marks, joke cousins of famous logos, paper sketching, ELL supports, XP, and printables. **Not a logo generator.** XP is brag on this device, not a grade.
+Chip **LL 1.2.0**. Grades 6–8 TechWorks shop floor: look at original lab brands, then stamp your own words and shapes on the mark bench. Joke cousins, paper sketching, ELL supports, and XP on this device. **Not a trademark copier and not an automatic logo machine.** SVG and PNG save on the Chromebook. Nothing is uploaded.
 
 **Classroom door:** [apps.kulibert.net/logolab](https://apps.kulibert.net/logolab/) (same-origin Tech Room tile)  
 **Live:** [logolab-rho.vercel.app/logolab](https://logolab-rho.vercel.app/logolab/)  
 **No student accounts.** Progress stays in the browser (`localStorage`).
+
+The mark bench uses [Fabric.js](https://github.com/fabricjs/fabric.js) 7.4.0 (MIT). Keep [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 See [CHANGELOG.md](CHANGELOG.md).
 
@@ -13,6 +15,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 Open the Tech Room tile **LogoLab**. Students can:
 
 - Warm up from memory, walk the stations, play floor games (keys 1–9)
+- Stamp a mark on the bench (text and shapes) and save SVG or PNG locally
 - Switch English / Español, hear glossary terms
 - Print worksheets and a certificate
 - Brag a rank + XP on the score wall
@@ -21,7 +24,7 @@ Famous real logos stay in talk and paper sketches — they are not copied on scr
 
 ## KuliNet design examples
 
-StyleBot’s KuliNet pack for this looking unit (Diego / Flo). Not wired into the student app, and not a hub-tile swap on apps.kulibert.net. Fabric upgrade is on HOLD.
+StyleBot’s KuliNet pack for this looking unit (Diego / Flo). Not wired into the student app, and not a hub-tile swap on apps.kulibert.net. The mark bench is the Fabric job. Hub tile HTML stays on HOLD.
 
 - [LogoLab design examples brief](docs/stylebot-examples/STYLEBOT-LOGOLAB-DESIGN-EXAMPLES.md)
 - [Parent brand kit](docs/brand/kulinet/STYLEBOT-KULINET-BRAND.md)
