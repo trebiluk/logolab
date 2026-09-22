@@ -1,11 +1,4 @@
 {
-  "redirects": [
-    {
-      "source": "/",
-      "destination": "/logolab/",
-      "permanent": false
-    }
-  ],
   "rewrites": [
     {
       "source": "/logolab/fonts/:path*",
