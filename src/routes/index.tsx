@@ -89,7 +89,7 @@ function Home() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: the shop floor opens again. Studio loads instead of jamming.
+          What’s new: Layer up and Layer down move the selected stamp.
         </p>
       </section>
 

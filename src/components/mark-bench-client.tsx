@@ -325,6 +325,32 @@ export function MarkBench() {
     c.requestRenderAll();
   }
 
+  function layer(dir: "up" | "down") {
+    const c = canvasRef.current;
+    if (!c) return;
+    const selected = c.getActiveObjects();
+    if (selected.length === 0) {
+      setNote(spanish ? "Selecciona una forma primero." : "Select a shape first.");
+      return;
+    }
+    for (const obj of selected) {
+      if (isEditing(obj)) (obj as IText).exitEditing();
+    }
+    const objs = c.getActiveObjects();
+    if (objs.length === 0) return;
+    pushHist();
+    const ordered = [...objs].sort(
+      (a, b) => c.getObjects().indexOf(a) - c.getObjects().indexOf(b),
+    );
+    const list = dir === "up" ? [...ordered].reverse() : ordered;
+    for (const obj of list) {
+      if (dir === "up") c.bringObjectForward(obj);
+      else c.sendObjectBackwards(obj);
+    }
+    c.requestRenderAll();
+    setNote("");
+  }
+
   function removeSelected() {
     const c = canvasRef.current;
     if (!c) return;
@@ -427,8 +453,8 @@ export function MarkBench() {
         <p className="mt-3 text-center text-sm text-muted" aria-live="polite">
           {note ||
             (spanish
-              ? "Arrastra para mover. Escribir abre la palabra. Delete quita la selección."
-              : "Drag to move. Type word opens it. Delete removes the selection.")}
+              ? "Arrastra para mover. Capa arriba y Capa abajo ordenan el sello."
+              : "Drag to move. Layer up and Layer down stack the stamp.")}
         </p>
       </div>
 
@@ -473,6 +499,15 @@ export function MarkBench() {
               style={{ backgroundColor: swatch.hex }}
             />
           ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <Button type="button" variant="outline" disabled={!ready} onClick={() => layer("up")}>
+            {spanish ? "Capa arriba" : "Layer up"}
+          </Button>
+          <Button type="button" variant="outline" disabled={!ready} onClick={() => layer("down")}>
+            {spanish ? "Capa abajo" : "Layer down"}
+          </Button>
         </div>
 
         <div className="grid grid-cols-3 gap-2">
