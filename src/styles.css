@@ -203,7 +203,11 @@
   box-shadow: var(--shadow-border);
 }
 
+.mark-press,
+.mark-press .canvas-container {
+  touch-action: none;
+}
+
 .mark-press .canvas-container {
   margin-inline: auto;
-  touch-action: none;
 }

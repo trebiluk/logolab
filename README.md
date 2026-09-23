@@ -1,6 +1,6 @@
 # BertyBot's LogoLab
 
-Chip **LL 1.2.2**. Grades 6–8 TechWorks shop floor: look at original lab brands, then stamp your own words and shapes on the mark bench. Joke cousins, paper sketching, ELL supports, and XP on this device. **Not a trademark copier and not an automatic logo machine.** SVG and PNG save on the Chromebook. Nothing is uploaded.
+Chip **LL 1.2.3**. Grades 6–8 TechWorks shop floor: look at original lab brands, then stamp your own words and shapes on the mark bench. Joke cousins, paper sketching, ELL supports, and XP on this device. **Not a trademark copier and not an automatic logo machine.** SVG and PNG save on the Chromebook. Nothing is uploaded.
 
 **Classroom door:** [apps.kulibert.net/logolab](https://apps.kulibert.net/logolab/) (same-origin Tech Room tile)  
 **Live:** [logolab-rho.vercel.app/logolab](https://logolab-rho.vercel.app/logolab/)  

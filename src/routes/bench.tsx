@@ -40,7 +40,7 @@ function BenchPage() {
         </p>
       ) : null}
       <p className="mt-3 max-w-xl text-sm text-muted">
-        What’s new: polish — stamps stay on the plate, and the XP slip sits under the header so it doesn’t cover Save.
+        What’s new: polish — Save PNG is a real file on this Chromebook, and Type word opens it without a double-tap.
       </p>
       {Bench ? <Bench /> : <p className="mt-6 text-sm text-muted">Opening the press…</p>}
     </div>

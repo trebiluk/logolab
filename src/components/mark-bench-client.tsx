@@ -93,6 +93,8 @@ export function MarkBench() {
     let dead = false;
     let canvas: Canvas | null = null;
     let onKey: ((e: KeyboardEvent) => void) | null = null;
+    const blockMenu = (e: Event) => e.preventDefault();
+    host.addEventListener("contextmenu", blockMenu);
 
     void (async () => {
       try {
@@ -119,6 +121,7 @@ export function MarkBench() {
           selection: true,
           preserveObjectStacking: true,
           allowTouchScrolling: false,
+          targetFindTolerance: 8,
         });
         if (dead) {
           void canvas.dispose();
@@ -137,7 +140,7 @@ export function MarkBench() {
           stack.push(next);
           if (stack.length > 12) stack.shift();
         });
-        canvas.on("text:editing:entered", () => {
+        canvas.on("text:editing:entered", (opt) => {
           const c = canvasRef.current;
           if (!c || restoring.current) return;
           const next = JSON.stringify(c.toObject());
@@ -145,6 +148,11 @@ export function MarkBench() {
           if (stack[stack.length - 1] === next) return;
           stack.push(next);
           if (stack.length > 12) stack.shift();
+          const ta = (opt.target as IText | undefined)?.hiddenTextarea;
+          if (ta) {
+            ta.style.fontSize = "16px";
+            ta.focus({ preventScroll: true });
+          }
         });
 
         onKey = (e: KeyboardEvent) => {
@@ -193,6 +201,7 @@ export function MarkBench() {
       dead = true;
       setReady(false);
       if (onKey) window.removeEventListener("keydown", onKey);
+      host.removeEventListener("contextmenu", blockMenu);
       canvasRef.current = null;
       if (canvas) void canvas.dispose();
       host.replaceChildren();
@@ -285,6 +294,26 @@ export function MarkBench() {
     setNote("");
   }
 
+  function typeWord() {
+    const c = canvasRef.current;
+    if (!c) return;
+    const active = c.getActiveObject();
+    const text =
+      active && "enterEditing" in active
+        ? (active as IText)
+        : ([...c.getObjects()].reverse().find((obj) => "enterEditing" in obj) as IText | undefined);
+    if (!text) {
+      setNote(spanish ? "Agrega una palabra primero." : "Add a word first.");
+      return;
+    }
+    c.setActiveObject(text);
+    if (!text.isEditing) text.enterEditing();
+    text.selectAll();
+    text.hiddenTextarea?.focus({ preventScroll: true });
+    c.requestRenderAll();
+    setNote("");
+  }
+
   function paint(hex: string) {
     setInk(hex);
     const c = canvasRef.current;
@@ -334,7 +363,7 @@ export function MarkBench() {
     setNote("");
   }
 
-  function ship(kind: "svg" | "png") {
+  async function ship(kind: "svg" | "png") {
     const c = canvasRef.current;
     if (!c) return;
     if (c.getObjects().length === 0) {
@@ -352,19 +381,25 @@ export function MarkBench() {
       });
       const url = URL.createObjectURL(blob);
       triggerDownload(MARK_SVG_NAME, url);
-      window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+      window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
       setNote(
         spanish
           ? `Guardado ${MARK_SVG_NAME} en este Chromebook.`
           : `Saved ${MARK_SVG_NAME} on this Chromebook.`,
       );
     } else {
-      const url = c.toDataURL({
+      const blob = await c.toBlob({
         format: "png",
         multiplier: 2,
         enableRetinaScaling: false,
       });
+      if (!blob) {
+        setNote(spanish ? "No se pudo guardar el PNG." : "Could not save the PNG.");
+        return;
+      }
+      const url = URL.createObjectURL(blob);
       triggerDownload(MARK_PNG_NAME, url);
+      window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
       setNote(
         spanish
           ? `Guardado ${MARK_PNG_NAME} en este Chromebook.`
@@ -392,8 +427,8 @@ export function MarkBench() {
         <p className="mt-3 text-center text-sm text-muted" aria-live="polite">
           {note ||
             (spanish
-              ? "Arrastra para mover. Doble toque en la palabra para escribir."
-              : "Drag to move. Double-tap a word to type. Delete removes the selection.")}
+              ? "Arrastra para mover. Escribir abre la palabra. Delete quita la selección."
+              : "Drag to move. Type word opens it. Delete removes the selection.")}
         </p>
       </div>
 
@@ -418,6 +453,9 @@ export function MarkBench() {
             Bar
           </Button>
         </div>
+        <Button type="button" variant="secondary" disabled={!ready} onClick={typeWord}>
+          {spanish ? "Escribir" : "Type word"}
+        </Button>
 
         <div className="flex flex-wrap gap-2" role="group" aria-label="Ink">
           {INKS.map((swatch) => (

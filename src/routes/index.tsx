@@ -89,7 +89,7 @@ function Home() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: polish — stamps stay on the plate, and the XP slip sits under the header so it doesn’t cover Save.
+          What’s new: polish — Save PNG is a real file on this Chromebook, and Type word opens it without a double-tap.
         </p>
       </section>
 
