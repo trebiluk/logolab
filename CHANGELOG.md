@@ -2,6 +2,10 @@
 
 Chip lives in `src/lib/version.ts` as `APP_CHIP`. One string: header, About, this file.
 
+## LL 1.2.4 — 2026-09-23
+
+- What’s new: the shop floor opens again. Studio loads instead of jamming.
+
 ## LL 1.2.3 — 2026-09-23
 
 - What’s new: polish — Save PNG is a real file on this Chromebook, and Type word opens it without a double-tap.

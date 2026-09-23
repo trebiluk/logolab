@@ -40,7 +40,7 @@ function BenchPage() {
         </p>
       ) : null}
       <p className="mt-3 max-w-xl text-sm text-muted">
-        What’s new: polish — Save PNG is a real file on this Chromebook, and Type word opens it without a double-tap.
+        What’s new: the shop floor opens again. Studio loads instead of jamming.
       </p>
       {Bench ? <Bench /> : <p className="mt-6 text-sm text-muted">Opening the press…</p>}
     </div>

@@ -89,7 +89,7 @@ function Home() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: polish — Save PNG is a real file on this Chromebook, and Type word opens it without a double-tap.
+          What’s new: the shop floor opens again. Studio loads instead of jamming.
         </p>
       </section>
 

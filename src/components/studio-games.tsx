@@ -32,6 +32,7 @@ import { STUDIO } from "@/content/unit";
 import { GLOSSARY } from "@/content/glossary";
 import { useProgress } from "@/lib/store";
 import { studioMaxXp } from "@/lib/xp";
+import { APP_CHIP } from "@/lib/version";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
@@ -1052,7 +1053,10 @@ export function StudioIndex() {
   const spanish = useProgress((s) => s.spanish);
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="font-display text-4xl font-medium">Shop floor</h1>
+      <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-teal">
+        {APP_CHIP} · Shop floor
+      </p>
+      <h1 className="mt-1 font-display text-4xl font-medium">Shop floor</h1>
       <p className="mt-2 text-ink-soft">
         Short looking games. Touch, click, or keys 1–9. Press ? for the key card.
         Scores and XP stay on this device — brag, not a grade.
