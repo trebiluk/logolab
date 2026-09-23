@@ -54,7 +54,7 @@ export function XpToasts() {
 
   return (
     <div
-      className="no-print pointer-events-none fixed bottom-20 right-4 z-50 flex flex-col items-end gap-2 md:bottom-6"
+      className="no-print pointer-events-none fixed top-16 right-4 z-50 flex flex-col items-end gap-2"
       role="status"
       aria-live="polite"
     >

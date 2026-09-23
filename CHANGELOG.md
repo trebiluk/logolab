@@ -2,6 +2,10 @@
 
 Chip lives in `src/lib/version.ts` as `APP_CHIP`. One string: header, About, this file.
 
+## LL 1.2.2 — 2026-09-23
+
+- What’s new: polish — stamps stay on the plate, and the XP slip sits under the header so it doesn’t cover Save.
+
 ## LL 1.2.1 — 2026-09-22
 
 - What’s new: polish — new stamps land beside the last one, and Save finishes the word first.

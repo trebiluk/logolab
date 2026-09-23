@@ -32,22 +32,21 @@ const HAND = {
   lockScalingFlip: true,
 } as const;
 
-const DROP: ReadonlyArray<readonly [number, number]> = [
-  [0, 0],
-  [40, -32],
-  [-44, 28],
-  [32, 40],
-  [-28, -40],
-  [52, 12],
-];
-
-function dropAt(c: Canvas): { left: number; top: number } {
+function dropAt(c: Canvas, halfW: number, halfH: number): { left: number; top: number } {
   const w = c.getWidth();
-  const [dx, dy] = DROP[c.getObjects().length % DROP.length] ?? [0, 0];
-  const pad = 48;
+  const h = c.getHeight();
+  const n = c.getObjects().length;
+  const col = n % 2;
+  const row = Math.floor(n / 2) % 3;
+  const rawLeft = col === 0 ? w * 0.34 : w * 0.66;
+  const rawTop = h * (0.3 + row * 0.26);
+  const minX = Math.min(w / 2, halfW + 8);
+  const maxX = Math.max(w / 2, w - halfW - 8);
+  const minY = Math.min(h / 2, halfH + 8);
+  const maxY = Math.max(h / 2, h - halfH - 8);
   return {
-    left: Math.min(w - pad, Math.max(pad, w / 2 + dx)),
-    top: Math.min(w - pad, Math.max(pad, w / 2 + dy)),
+    left: Math.min(maxX, Math.max(minX, rawLeft)),
+    top: Math.min(maxY, Math.max(minY, rawTop)),
   };
 }
 
@@ -206,7 +205,17 @@ export function MarkBench() {
     pushHist();
     const { Circle, Rect, Triangle } = await import("fabric");
     const w = c.getWidth();
-    const { left, top } = dropAt(c);
+    const half =
+      kind === "circle"
+        ? Math.round(w * 0.16)
+        : kind === "bar"
+          ? { x: Math.round(w * 0.28), y: Math.round(w * 0.06) }
+          : kind === "triangle"
+            ? { x: Math.round(w * 0.18), y: Math.round(w * 0.16) }
+            : Math.round(w * 0.17);
+    const halfW = typeof half === "number" ? half : half.x;
+    const halfH = typeof half === "number" ? half : half.y;
+    const { left, top } = dropAt(c, halfW, halfH);
     const fill = inkRef.current;
     const common = { left, top, originX: "center" as const, originY: "center" as const, fill, ...HAND };
     const obj =
@@ -245,7 +254,11 @@ export function MarkBench() {
     pushHist();
     const { IText: FabricText } = await import("fabric");
     const w = c.getWidth();
-    const { left, top } = dropAt(c);
+    const { left, top } = dropAt(
+      c,
+      display ? Math.round(w * 0.28) : Math.round(w * 0.16),
+      display ? Math.round(w * 0.1) : Math.round(w * 0.07),
+    );
     const text = new FabricText(display ? "MARK" : "name", {
       left,
       top,
