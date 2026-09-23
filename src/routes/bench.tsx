@@ -39,6 +39,9 @@ function BenchPage() {
           No se sube. No copies una marca real.
         </p>
       ) : null}
+      <p className="mt-3 max-w-xl text-sm text-muted">
+        What’s new: polish — new stamps land beside the last one, and Save finishes the word first.
+      </p>
       {Bench ? <Bench /> : <p className="mt-6 text-sm text-muted">Opening the press…</p>}
     </div>
   );

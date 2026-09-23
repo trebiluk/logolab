@@ -8,6 +8,7 @@ import {
   triggerDownload,
 } from "@/lib/mark-export";
 import { useProgress } from "@/lib/store";
+import { cn } from "@/lib/utils";
 
 const PAPER = "#f3efe6";
 
@@ -21,8 +22,8 @@ const INKS = [
 ] as const;
 
 const HAND = {
-  cornerSize: 14,
-  touchCornerSize: 28,
+  cornerSize: 16,
+  touchCornerSize: 32,
   transparentCorners: false,
   cornerColor: "#faf8f3",
   cornerStrokeColor: "#1f4f4a",
@@ -30,6 +31,33 @@ const HAND = {
   padding: 8,
   lockScalingFlip: true,
 } as const;
+
+const DROP: ReadonlyArray<readonly [number, number]> = [
+  [0, 0],
+  [40, -32],
+  [-44, 28],
+  [32, 40],
+  [-28, -40],
+  [52, 12],
+];
+
+function dropAt(c: Canvas): { left: number; top: number } {
+  const w = c.getWidth();
+  const [dx, dy] = DROP[c.getObjects().length % DROP.length] ?? [0, 0];
+  const pad = 48;
+  return {
+    left: Math.min(w - pad, Math.max(pad, w / 2 + dx)),
+    top: Math.min(w - pad, Math.max(pad, w / 2 + dy)),
+  };
+}
+
+function finishEditing(c: Canvas) {
+  for (const obj of c.getObjects()) {
+    if (isEditing(obj)) (obj as IText).exitEditing();
+  }
+  c.discardActiveObject();
+  c.requestRenderAll();
+}
 
 function isEditing(obj: FabricObject): boolean {
   return "isEditing" in obj && Boolean((obj as IText).isEditing);
@@ -178,8 +206,7 @@ export function MarkBench() {
     pushHist();
     const { Circle, Rect, Triangle } = await import("fabric");
     const w = c.getWidth();
-    const left = w / 2;
-    const top = w / 2;
+    const { left, top } = dropAt(c);
     const fill = inkRef.current;
     const common = { left, top, originX: "center" as const, originY: "center" as const, fill, ...HAND };
     const obj =
@@ -218,9 +245,10 @@ export function MarkBench() {
     pushHist();
     const { IText: FabricText } = await import("fabric");
     const w = c.getWidth();
+    const { left, top } = dropAt(c);
     const text = new FabricText(display ? "MARK" : "name", {
-      left: w / 2,
-      top: w / 2,
+      left,
+      top,
       originX: "center",
       originY: "center",
       fill: inkRef.current,
@@ -230,6 +258,7 @@ export function MarkBench() {
       fontSize: display ? Math.round(w * 0.16) : Math.round(w * 0.1),
       fontWeight: 650,
       textAlign: "center",
+      selectionColor: "rgba(31, 79, 74, 0.28)",
       ...HAND,
     });
     c.add(text);
@@ -303,8 +332,7 @@ export function MarkBench() {
       );
       return;
     }
-    c.discardActiveObject();
-    c.requestRenderAll();
+    finishEditing(c);
     if (kind === "svg") {
       const blob = new Blob([stampSvg(c.toSVG())], {
         type: "image/svg+xml;charset=utf-8",
@@ -356,7 +384,7 @@ export function MarkBench() {
         </p>
       </div>
 
-      <div className="flex w-full shrink-0 flex-col gap-3 lg:w-72">
+      <div className="flex w-full shrink-0 flex-col gap-3 lg:w-80">
         <div className="grid grid-cols-2 gap-2">
           <Button type="button" disabled={!ready} onClick={() => void addWord(true)}>
             Big word
@@ -387,7 +415,10 @@ export function MarkBench() {
               aria-label={swatch.name}
               aria-pressed={ink === swatch.hex}
               onClick={() => paint(swatch.hex)}
-              className="size-11 rounded-md border border-line disabled:opacity-50"
+              className={cn(
+                "size-11 rounded-md border border-line disabled:opacity-50",
+                ink === swatch.hex && "ring-2 ring-teal ring-offset-2 ring-offset-paper",
+              )}
               style={{ backgroundColor: swatch.hex }}
             />
           ))}
