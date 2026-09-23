@@ -10,13 +10,13 @@ import {
 import { useProgress } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-const PAPER = "#f3efe6";
+const PAPER = "#ffffff";
 
 const INKS = [
   { name: "Ink", hex: "#1c1a16" },
   { name: "Teal", hex: "#1f4f4a" },
   { name: "Brass", hex: "#c9a24a" },
-  { name: "Paper", hex: "#f3efe6" },
+  { name: "White", hex: "#ffffff" },
   { name: "Rust", hex: "#8f3a32" },
   { name: "Pine", hex: "#2c6a4a" },
 ] as const;
@@ -351,6 +351,90 @@ export function MarkBench() {
     setNote("");
   }
 
+  function selectedObjects(): FabricObject[] {
+    const c = canvasRef.current;
+    if (!c) return [];
+    const objs = c.getActiveObjects();
+    for (const obj of objs) {
+      if (isEditing(obj)) (obj as IText).exitEditing();
+    }
+    return c.getActiveObjects();
+  }
+
+  function needSelection(): FabricObject[] | null {
+    const objs = selectedObjects();
+    if (objs.length === 0) {
+      setNote(spanish ? "Selecciona una forma primero." : "Select a shape first.");
+      return null;
+    }
+    return objs;
+  }
+
+  async function duplicate() {
+    const c = canvasRef.current;
+    const objs = needSelection();
+    if (!c || !objs) return;
+    pushHist();
+    let last: FabricObject | null = null;
+    for (const obj of objs) {
+      const clone = await obj.clone();
+      clone.set({
+        left: (clone.left ?? 0) + 28,
+        top: (clone.top ?? 0) + 28,
+      });
+      c.add(clone);
+      last = clone;
+    }
+    if (last) c.setActiveObject(last);
+    c.requestRenderAll();
+    setNote("");
+  }
+
+  function rotateSelected() {
+    const c = canvasRef.current;
+    const objs = needSelection();
+    if (!c || !objs) return;
+    pushHist();
+    for (const obj of objs) {
+      obj.rotate(((obj.angle || 0) + 15) % 360);
+      obj.setCoords();
+    }
+    c.requestRenderAll();
+    setNote("");
+  }
+
+  function scaleSelected(factor: number) {
+    const c = canvasRef.current;
+    const objs = needSelection();
+    if (!c || !objs) return;
+    pushHist();
+    for (const obj of objs) {
+      const next = Math.min(6, Math.max(0.25, (obj.scaleX || 1) * factor));
+      obj.set({ scaleX: next, scaleY: next });
+      obj.setCoords();
+    }
+    c.requestRenderAll();
+    setNote("");
+  }
+
+  function toggleOutline() {
+    const c = canvasRef.current;
+    const objs = needSelection();
+    if (!c || !objs) return;
+    pushHist();
+    for (const obj of objs) {
+      const on = (obj.strokeWidth ?? 0) > 0 && Boolean(obj.stroke);
+      obj.set(
+        on
+          ? { stroke: "", strokeWidth: 0 }
+          : { stroke: inkRef.current, strokeWidth: 8, strokeUniform: true },
+      );
+      obj.setCoords();
+    }
+    c.requestRenderAll();
+    setNote("");
+  }
+
   function removeSelected() {
     const c = canvasRef.current;
     if (!c) return;
@@ -440,7 +524,7 @@ export function MarkBench() {
       <div className="min-w-0 flex-1">
         <div
           ref={hostRef}
-          className="mark-press mx-auto w-full max-w-md overflow-hidden rounded-xl border border-line bg-paper"
+          className="mark-press mx-auto w-full max-w-md overflow-hidden rounded-xl border border-line bg-white"
         />
         {!ready && !err ? (
           <p className="mt-3 text-center text-sm text-muted">Opening the press…</p>
@@ -453,8 +537,8 @@ export function MarkBench() {
         <p className="mt-3 text-center text-sm text-muted" aria-live="polite">
           {note ||
             (spanish
-              ? "Arrastra para mover. Capa arriba y Capa abajo ordenan el sello."
-              : "Drag to move. Layer up and Layer down stack the stamp.")}
+              ? "Placa blanca. Duplicar, Girar, Más, Menos y Contorno cambian el sello."
+              : "White plate. Duplicate, Rotate, Bigger, Smaller, and Outline change the stamp.")}
         </p>
       </div>
 
@@ -500,6 +584,27 @@ export function MarkBench() {
             />
           ))}
         </div>
+
+        <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-teal">
+          {spanish ? "Ajustar" : "Customize"}
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <Button type="button" variant="outline" disabled={!ready} onClick={() => void duplicate()}>
+            {spanish ? "Duplicar" : "Duplicate"}
+          </Button>
+          <Button type="button" variant="outline" disabled={!ready} onClick={rotateSelected}>
+            {spanish ? "Girar" : "Rotate"}
+          </Button>
+          <Button type="button" variant="outline" disabled={!ready} onClick={() => scaleSelected(1.15)}>
+            {spanish ? "Más grande" : "Bigger"}
+          </Button>
+          <Button type="button" variant="outline" disabled={!ready} onClick={() => scaleSelected(1 / 1.15)}>
+            {spanish ? "Más chico" : "Smaller"}
+          </Button>
+        </div>
+        <Button type="button" variant="outline" disabled={!ready} onClick={toggleOutline}>
+          {spanish ? "Contorno" : "Outline"}
+        </Button>
 
         <div className="grid grid-cols-2 gap-2">
           <Button type="button" variant="outline" disabled={!ready} onClick={() => layer("up")}>

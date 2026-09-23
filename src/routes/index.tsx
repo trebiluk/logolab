@@ -89,7 +89,7 @@ function Home() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: Layer up and Layer down move the selected stamp.
+          What’s new: the plate is white, with Duplicate, Rotate, Bigger, Smaller, and Outline.
         </p>
       </section>
 

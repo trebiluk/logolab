@@ -40,7 +40,7 @@ function BenchPage() {
         </p>
       ) : null}
       <p className="mt-3 max-w-xl text-sm text-muted">
-        What’s new: Layer up and Layer down move the selected stamp.
+        What’s new: the plate is white, with Duplicate, Rotate, Bigger, Smaller, and Outline.
       </p>
       {Bench ? <Bench /> : <p className="mt-6 text-sm text-muted">Opening the press…</p>}
     </div>
