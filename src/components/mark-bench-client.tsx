@@ -64,6 +64,7 @@ function isEditing(obj: FabricObject): boolean {
 
 export function MarkBench() {
   const spanish = useProgress((s) => s.spanish);
+  const say = (en: string, es: string) => (spanish ? es : en);
   const awardBench = useProgress((s) => s.awardBench);
   const hostRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<Canvas | null>(null);
@@ -323,6 +324,11 @@ export function MarkBench() {
     pushHist();
     for (const obj of objs) obj.set("fill", hex);
     c.requestRenderAll();
+    setNote(
+      hex === "#ffffff"
+        ? say("White ink shows on top of a color.", "La tinta blanca se ve sobre un color.")
+        : "",
+    );
   }
 
   function layer(dir: "up" | "down") {
@@ -399,6 +405,18 @@ export function MarkBench() {
       obj.rotate(((obj.angle || 0) + 15) % 360);
       obj.setCoords();
     }
+    c.requestRenderAll();
+    setNote("");
+  }
+
+  function centerSelected() {
+    const c = canvasRef.current;
+    if (!c || !needSelection()) return;
+    const active = c.getActiveObject();
+    if (!active) return;
+    pushHist();
+    active.set({ left: c.getWidth() / 2, top: c.getHeight() / 2 });
+    active.setCoords();
     c.requestRenderAll();
     setNote("");
   }
@@ -520,8 +538,8 @@ export function MarkBench() {
   }
 
   return (
-    <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-start">
-      <div className="min-w-0 flex-1">
+    <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start">
+      <div className="min-w-0 flex-1 lg:sticky lg:top-16">
         <div
           ref={hostRef}
           className="mark-press mx-auto w-full max-w-md overflow-hidden rounded-xl border border-line bg-white"
@@ -537,37 +555,37 @@ export function MarkBench() {
         <p className="mt-3 text-center text-sm text-muted" aria-live="polite">
           {note ||
             (spanish
-              ? "Placa blanca. Duplicar, Girar, Más, Menos y Contorno cambian el sello."
-              : "White plate. Duplicate, Rotate, Bigger, Smaller, and Outline change the stamp.")}
+              ? "Elige un sello. Centro lo coloca. Guardar queda en esta pantalla."
+              : "Select a stamp. Center parks it. Save stays on this screen.")}
         </p>
       </div>
 
-      <div className="flex w-full shrink-0 flex-col gap-3 lg:w-80">
+      <div className="flex w-full shrink-0 flex-col gap-2 lg:w-80">
         <div className="grid grid-cols-2 gap-2">
           <Button type="button" disabled={!ready} onClick={() => void addWord(true)}>
-            Big word
+            {say("Big word", "Grande")}
           </Button>
           <Button type="button" variant="secondary" disabled={!ready} onClick={() => void addWord(false)}>
-            Plain word
+            {say("Plain word", "Normal")}
           </Button>
           <Button type="button" variant="secondary" disabled={!ready} onClick={() => void addShape("square")}>
-            Square
+            {say("Square", "Cuadrado")}
           </Button>
           <Button type="button" variant="secondary" disabled={!ready} onClick={() => void addShape("circle")}>
-            Circle
+            {say("Circle", "Círculo")}
           </Button>
           <Button type="button" variant="secondary" disabled={!ready} onClick={() => void addShape("triangle")}>
-            Triangle
+            {say("Triangle", "Triángulo")}
           </Button>
           <Button type="button" variant="secondary" disabled={!ready} onClick={() => void addShape("bar")}>
-            Bar
+            {say("Bar", "Barra")}
           </Button>
         </div>
         <Button type="button" variant="secondary" disabled={!ready} onClick={typeWord}>
-          {spanish ? "Escribir" : "Type word"}
+          {say("Type word", "Escribir")}
         </Button>
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Ink">
+        <div className="flex flex-wrap gap-2" role="group" aria-label={say("Ink", "Tinta")}>
           {INKS.map((swatch) => (
             <button
               key={swatch.name}
@@ -577,7 +595,8 @@ export function MarkBench() {
               aria-pressed={ink === swatch.hex}
               onClick={() => paint(swatch.hex)}
               className={cn(
-                "size-11 rounded-md border border-line disabled:opacity-50",
+                "size-11 rounded-md border disabled:opacity-50",
+                swatch.hex === "#ffffff" ? "border-2 border-ink/35" : "border-line",
                 ink === swatch.hex && "ring-2 ring-teal ring-offset-2 ring-offset-paper",
               )}
               style={{ backgroundColor: swatch.hex }}
@@ -585,57 +604,61 @@ export function MarkBench() {
           ))}
         </div>
 
-        <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-teal">
-          {spanish ? "Ajustar" : "Customize"}
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          <Button type="button" variant="outline" disabled={!ready} onClick={() => void duplicate()}>
-            {spanish ? "Duplicar" : "Duplicate"}
+        <div className="grid grid-cols-3 gap-2">
+          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={() => void duplicate()}>
+            {say("Duplicate", "Duplicar")}
           </Button>
-          <Button type="button" variant="outline" disabled={!ready} onClick={rotateSelected}>
-            {spanish ? "Girar" : "Rotate"}
+          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={rotateSelected}>
+            {say("Rotate", "Girar")}
           </Button>
-          <Button type="button" variant="outline" disabled={!ready} onClick={() => scaleSelected(1.15)}>
-            {spanish ? "Más grande" : "Bigger"}
+          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={toggleOutline}>
+            {say("Outline", "Contorno")}
           </Button>
-          <Button type="button" variant="outline" disabled={!ready} onClick={() => scaleSelected(1 / 1.15)}>
-            {spanish ? "Más chico" : "Smaller"}
+          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={() => scaleSelected(1.15)}>
+            {say("Bigger", "Grande")}
+          </Button>
+          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={() => scaleSelected(1 / 1.15)}>
+            {say("Smaller", "Chico")}
+          </Button>
+          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={centerSelected}>
+            {say("Center", "Centro")}
           </Button>
         </div>
-        <Button type="button" variant="outline" disabled={!ready} onClick={toggleOutline}>
-          {spanish ? "Contorno" : "Outline"}
-        </Button>
 
         <div className="grid grid-cols-2 gap-2">
           <Button type="button" variant="outline" disabled={!ready} onClick={() => layer("up")}>
-            {spanish ? "Capa arriba" : "Layer up"}
+            {say("Layer up", "Capa arriba")}
           </Button>
           <Button type="button" variant="outline" disabled={!ready} onClick={() => layer("down")}>
-            {spanish ? "Capa abajo" : "Layer down"}
+            {say("Layer down", "Capa abajo")}
           </Button>
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          <Button type="button" variant="outline" disabled={!ready} onClick={removeSelected}>
-            Delete
+          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={removeSelected}>
+            {say("Delete", "Borrar")}
           </Button>
-          <Button type="button" variant="outline" disabled={!ready} onClick={() => void undo()}>
-            Undo
+          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={() => void undo()}>
+            {say("Undo", "Deshacer")}
           </Button>
-          <Button type="button" variant="outline" disabled={!ready} onClick={clearBoard}>
-            Clear
+          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={clearBoard}>
+            {say("Clear", "Limpiar")}
           </Button>
         </div>
 
-        <Button type="button" disabled={!ready} onClick={() => ship("png")}>
-          Save PNG
-        </Button>
-        <Button type="button" variant="secondary" disabled={!ready} onClick={() => ship("svg")}>
-          Save SVG
-        </Button>
+        <div className="grid grid-cols-2 gap-2">
+          <Button type="button" disabled={!ready} onClick={() => ship("png")}>
+            {say("Save PNG", "Guardar PNG")}
+          </Button>
+          <Button type="button" variant="secondary" disabled={!ready} onClick={() => ship("svg")}>
+            {say("Save SVG", "Guardar SVG")}
+          </Button>
+        </div>
         <p className="text-xs text-muted">
-          PNG is the picture. SVG keeps the shapes. Both stay on this device.
-          Fabric.js is MIT.
+          {say(
+            "PNG is the picture. SVG keeps the shapes. Both stay on this Chromebook. Fabric.js is MIT.",
+            "PNG es la imagen. SVG guarda las formas. Los dos quedan en este Chromebook. Fabric.js es MIT.",
+          )}
         </p>
       </div>
     </div>

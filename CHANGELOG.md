@@ -2,6 +2,10 @@
 
 Chip lives in `src/lib/version.ts` as `APP_CHIP`. One string: header, About, this file.
 
+## LL 1.2.7 — 2026-09-24
+
+- What’s new: polish — Layer, Delete, and Save sit on the first screen, and Center parks the stamp.
+
 ## LL 1.2.6 — 2026-09-23
 
 - What’s new: the plate is white, with Duplicate, Rotate, Bigger, Smaller, and Outline.

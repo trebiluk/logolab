@@ -89,7 +89,7 @@ function Home() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: the plate is white, with Duplicate, Rotate, Bigger, Smaller, and Outline.
+          What’s new: polish — Layer, Delete, and Save sit on the first screen, and Center parks the stamp.
         </p>
       </section>
 
