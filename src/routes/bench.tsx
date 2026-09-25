@@ -37,7 +37,7 @@ function BenchPage() {
         </p>
       ) : null}
       <p className="mt-2 max-w-xl text-sm text-muted">
-        What’s new: the first stamp says it’s on the plate, and the Fabric.js line fits this screen.
+        What’s new: Save lands on the plate, edits clear it, and the first ship shows +12 XP.
       </p>
       {Bench ? <Bench /> : <p className="mt-6 text-sm text-muted">Opening the press…</p>}
     </div>

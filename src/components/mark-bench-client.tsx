@@ -9,6 +9,7 @@ import {
 } from "@/lib/mark-export";
 import { useProgress } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { XP_BENCH } from "@/lib/xp";
 
 const PAPER = "#ffffff";
 
@@ -75,14 +76,22 @@ export function MarkBench() {
   const [ready, setReady] = useState(false);
   const [note, setNote] = useState("");
   const [savedName, setSavedName] = useState("");
+  const [shipXp, setShipXp] = useState(0);
   const [stamps, setStamps] = useState(0);
   const [err, setErr] = useState("");
 
   inkRef.current = ink;
 
+  function dropSaved() {
+    setSavedName("");
+    setShipXp(0);
+    setNote((n) => (n.startsWith("Saved.") || n.startsWith("Guardado.") ? "" : n));
+  }
+
   function pushHist() {
     const c = canvasRef.current;
     if (!c || restoring.current) return;
+    dropSaved();
     const snap = JSON.stringify(c.toObject());
     const stack = hist.current;
     if (stack[stack.length - 1] === snap) return;
@@ -137,6 +146,9 @@ export function MarkBench() {
         canvas.on("before:transform", () => {
           const c = canvasRef.current;
           if (!c || restoring.current) return;
+          setSavedName("");
+          setShipXp(0);
+          setNote((n) => (n.startsWith("Saved.") || n.startsWith("Guardado.") ? "" : n));
           const next = JSON.stringify(c.toObject());
           const stack = hist.current;
           if (stack[stack.length - 1] === next) return;
@@ -148,6 +160,12 @@ export function MarkBench() {
         });
         canvas.on("object:removed", () => {
           if (!dead) setStamps(canvasRef.current?.getObjects().length ?? 0);
+        });
+        canvas.on("text:changed", () => {
+          if (dead || restoring.current) return;
+          setSavedName("");
+          setShipXp(0);
+          setNote((n) => (n.startsWith("Saved.") || n.startsWith("Guardado.") ? "" : n));
         });
         canvas.on("text:editing:entered", (opt) => {
           const c = canvasRef.current;
@@ -529,12 +547,7 @@ export function MarkBench() {
       const url = URL.createObjectURL(blob);
       triggerDownload(MARK_SVG_NAME, url);
       window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
-      setNote(
-        spanish
-          ? `Listo. ${MARK_SVG_NAME} quedó en este Chromebook.`
-          : `You saved it. ${MARK_SVG_NAME} is on this Chromebook.`,
-      );
-      setSavedName(MARK_SVG_NAME);
+      markShipped(MARK_SVG_NAME);
     } else {
       const blob = await c.toBlob({
         format: "png",
@@ -548,13 +561,21 @@ export function MarkBench() {
       const url = URL.createObjectURL(blob);
       triggerDownload(MARK_PNG_NAME, url);
       window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
-      setNote(
-        spanish
-          ? `Listo. ${MARK_PNG_NAME} quedó en este Chromebook.`
-          : `You saved it. ${MARK_PNG_NAME} is on this Chromebook.`,
-      );
-      setSavedName(MARK_PNG_NAME);
+      markShipped(MARK_PNG_NAME);
     }
+  }
+
+  function markShipped(name: string) {
+    const fresh = !useProgress.getState().benchAwarded;
+    const xp = fresh ? XP_BENCH : 0;
+    setShipXp(xp);
+    setSavedName(name);
+    const bonus = xp ? ` +${xp} XP.` : "";
+    setNote(
+      spanish
+        ? `Guardado. ${name} quedó en este Chromebook.${bonus}`
+        : `Saved. ${name} is on this Chromebook.${bonus}`,
+    );
     awardBench();
   }
 
@@ -571,6 +592,14 @@ export function MarkBench() {
               {say(
                 "1. Big word.  2. Drag it.  3. Save PNG.",
                 "1. Grande.  2. Arrástrala.  3. Guardar PNG.",
+              )}
+            </p>
+          ) : null}
+          {ready && savedName && !err ? (
+            <p className="pointer-events-none absolute inset-x-3 bottom-3 text-center text-sm font-medium text-ink">
+              {say(
+                `Saved. ${savedName}${shipXp ? ` · +${shipXp} XP` : ""}`,
+                `Guardado. ${savedName}${shipXp ? ` · +${shipXp} XP` : ""}`,
               )}
             </p>
           ) : null}
@@ -592,7 +621,8 @@ export function MarkBench() {
           className={cn(
             "mt-3 text-center text-sm",
             (stamps > 0 && !note) ||
-              (savedName && note.startsWith(spanish ? "Listo." : "You saved it."))
+              (savedName &&
+                (note.startsWith("Saved.") || note.startsWith("Guardado.")))
               ? "font-medium text-ink"
               : "text-muted",
           )}

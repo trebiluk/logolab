@@ -2,6 +2,10 @@
 
 Chip lives in `src/lib/version.ts` as `APP_CHIP`. One string: header, About, this file.
 
+## LL 1.2.10 — 2026-09-25
+
+- What’s new: Save lands on the plate, edits clear it, and the first ship shows +12 XP.
+
 ## LL 1.2.9 — 2026-09-24
 
 - What’s new: the first stamp says it’s on the plate, and the Fabric.js line fits this screen.

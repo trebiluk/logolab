@@ -89,7 +89,7 @@ function Home() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: the first stamp says it’s on the plate, and the Fabric.js line fits this screen.
+          What’s new: Save lands on the plate, edits clear it, and the first ship shows +12 XP.
         </p>
       </section>
 
