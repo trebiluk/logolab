@@ -2,6 +2,10 @@
 
 Chip lives in `src/lib/version.ts` as `APP_CHIP`. One string: header, About, this file.
 
+## LL 1.2.8 — 2026-09-24
+
+- What’s new: the empty plate says start with Big word, and Save says the file landed.
+
 ## LL 1.2.7 — 2026-09-24
 
 - What’s new: polish — Layer, Delete, and Save sit on the first screen, and Center parks the stamp.

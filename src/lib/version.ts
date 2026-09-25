@@ -1,7 +1,14 @@
-/** One string. Chip = changelog header = About. Live looks like LL 1.2.7. */
-export const APP_CHIP = "LL 1.2.7";
+/** One string. Chip = changelog header = About. Live looks like LL 1.2.8. */
+export const APP_CHIP = "LL 1.2.8";
 
 export const CHANGELOG: { chip: string; when: string; notes: string[] }[] = [
+  {
+    chip: "LL 1.2.8",
+    when: "2026-09-24",
+    notes: [
+      "What’s new: the empty plate says start with Big word, and Save says the file landed.",
+    ],
+  },
   {
     chip: "LL 1.2.7",
     when: "2026-09-24",

@@ -89,7 +89,7 @@ function Home() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: polish — Layer, Delete, and Save sit on the first screen, and Center parks the stamp.
+          What’s new: the empty plate says start with Big word, and Save says the file landed.
         </p>
       </section>
 

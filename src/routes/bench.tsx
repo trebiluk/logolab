@@ -38,7 +38,7 @@ function BenchPage() {
         </p>
       ) : null}
       <p className="mt-2 max-w-xl text-sm text-muted">
-        What’s new: polish — Layer, Delete, and Save sit on the first screen, and Center parks the stamp.
+        What’s new: the empty plate says start with Big word, and Save says the file landed.
       </p>
       {Bench ? <Bench /> : <p className="mt-6 text-sm text-muted">Opening the press…</p>}
     </div>

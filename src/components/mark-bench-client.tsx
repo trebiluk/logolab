@@ -74,6 +74,8 @@ export function MarkBench() {
   const [ink, setInk] = useState<string>(INKS[0].hex);
   const [ready, setReady] = useState(false);
   const [note, setNote] = useState("");
+  const [savedName, setSavedName] = useState("");
+  const [stamps, setStamps] = useState(0);
   const [err, setErr] = useState("");
 
   inkRef.current = ink;
@@ -140,6 +142,12 @@ export function MarkBench() {
           if (stack[stack.length - 1] === next) return;
           stack.push(next);
           if (stack.length > 12) stack.shift();
+        });
+        canvas.on("object:added", () => {
+          if (!dead) setStamps(canvasRef.current?.getObjects().length ?? 0);
+        });
+        canvas.on("object:removed", () => {
+          if (!dead) setStamps(canvasRef.current?.getObjects().length ?? 0);
         });
         canvas.on("text:editing:entered", (opt) => {
           const c = canvasRef.current;
@@ -477,6 +485,7 @@ export function MarkBench() {
       restoring.current = false;
     }
     setNote("");
+    setStamps(c.getObjects().length);
   }
 
   function clearBoard() {
@@ -489,6 +498,7 @@ export function MarkBench() {
     c.backgroundColor = PAPER;
     c.requestRenderAll();
     setNote("");
+    setStamps(0);
   }
 
   async function ship(kind: "svg" | "png") {
@@ -512,9 +522,10 @@ export function MarkBench() {
       window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
       setNote(
         spanish
-          ? `Guardado ${MARK_SVG_NAME} en este Chromebook.`
-          : `Saved ${MARK_SVG_NAME} on this Chromebook.`,
+          ? `Listo. ${MARK_SVG_NAME} quedó en este Chromebook.`
+          : `You saved it. ${MARK_SVG_NAME} is on this Chromebook.`,
       );
+      setSavedName(MARK_SVG_NAME);
     } else {
       const blob = await c.toBlob({
         format: "png",
@@ -530,9 +541,10 @@ export function MarkBench() {
       window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
       setNote(
         spanish
-          ? `Guardado ${MARK_PNG_NAME} en este Chromebook.`
-          : `Saved ${MARK_PNG_NAME} on this Chromebook.`,
+          ? `Listo. ${MARK_PNG_NAME} quedó en este Chromebook.`
+          : `You saved it. ${MARK_PNG_NAME} is on this Chromebook.`,
       );
+      setSavedName(MARK_PNG_NAME);
     }
     awardBench();
   }
@@ -540,10 +552,20 @@ export function MarkBench() {
   return (
     <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start">
       <div className="min-w-0 flex-1 lg:sticky lg:top-16">
-        <div
-          ref={hostRef}
-          className="mark-press mx-auto w-full max-w-md overflow-hidden rounded-xl border border-line bg-white"
-        />
+        <div className="relative mx-auto w-full max-w-md">
+          <div
+            ref={hostRef}
+            className="mark-press w-full overflow-hidden rounded-xl border border-line bg-white"
+          />
+          {ready && stamps === 0 && !err ? (
+            <p className="pointer-events-none absolute inset-x-3 bottom-3 text-center text-sm font-medium text-teal">
+              {say(
+                "1. Big word.  2. Drag it.  3. Save PNG.",
+                "1. Grande.  2. Arrástrala.  3. Guardar PNG.",
+              )}
+            </p>
+          ) : null}
+        </div>
         {!ready && !err ? (
           <p className="mt-3 text-center text-sm text-muted">Opening the press…</p>
         ) : null}
@@ -552,17 +574,38 @@ export function MarkBench() {
             {err}
           </p>
         ) : null}
-        <p className="mt-3 text-center text-sm text-muted" aria-live="polite">
+        <p
+          className={cn(
+            "mt-3 text-center text-sm",
+            savedName && note.startsWith(spanish ? "Listo." : "You saved it.")
+              ? "font-medium text-ink"
+              : "text-muted",
+          )}
+          role="status"
+          aria-live="polite"
+        >
           {note ||
-            (spanish
-              ? "Elige un sello. Centro lo coloca. Guardar queda en esta pantalla."
-              : "Select a stamp. Center parks it. Save stays on this screen.")}
+            (stamps === 0
+              ? say(
+                  "Start with Big word. Then drag it. Then Save PNG.",
+                  "Empieza con Grande. Luego arrástrala. Luego Guardar PNG.",
+                )
+              : say(
+                  "Drag to move. Save PNG when it looks right.",
+                  "Arrastra. Guardar PNG cuando se vea bien.",
+                ))}
         </p>
       </div>
 
       <div className="flex w-full shrink-0 flex-col gap-2 lg:w-80">
         <div className="grid grid-cols-2 gap-2">
-          <Button type="button" disabled={!ready} onClick={() => void addWord(true)}>
+          <Button
+            type="button"
+            disabled={!ready}
+            title={stamps === 0 ? say("Do this first", "Haz esto primero") : undefined}
+            className={stamps === 0 ? "ring-2 ring-ink ring-offset-2 ring-offset-paper" : undefined}
+            onClick={() => void addWord(true)}
+          >
             {say("Big word", "Grande")}
           </Button>
           <Button type="button" variant="secondary" disabled={!ready} onClick={() => void addWord(false)}>
