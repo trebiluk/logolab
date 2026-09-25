@@ -37,7 +37,7 @@ function BenchPage() {
         </p>
       ) : null}
       <p className="mt-2 max-w-xl text-sm text-muted">
-        What’s new: Save lands on the plate, edits clear it, and the first ship shows +12 XP.
+        What’s new: the plate note sits at the top, so a stamp at the bottom stays visible.
       </p>
       {Bench ? <Bench /> : <p className="mt-6 text-sm text-muted">Opening the press…</p>}
     </div>

@@ -13,6 +13,9 @@ import { XP_BENCH } from "@/lib/xp";
 
 const PAPER = "#ffffff";
 
+const PLATE_NOTE =
+  "pointer-events-none absolute left-0 right-0 top-2 z-10 mx-auto w-max max-w-[92%] rounded-md border border-line bg-white px-3 py-1 text-center text-sm font-medium text-ink";
+
 const INKS = [
   { name: "Ink", hex: "#1c1a16" },
   { name: "Teal", hex: "#1f4f4a" },
@@ -588,15 +591,15 @@ export function MarkBench() {
             className="mark-press w-full overflow-hidden rounded-xl border border-line bg-white"
           />
           {ready && stamps === 0 && !err ? (
-            <p className="pointer-events-none absolute inset-x-3 bottom-3 text-center text-sm font-medium text-teal">
+            <p className={PLATE_NOTE}>
               {say(
-                "1. Big word.  2. Drag it.  3. Save PNG.",
-                "1. Grande.  2. Arrástrala.  3. Guardar PNG.",
+                "1. Big word · 2. Drag · 3. Save PNG",
+                "1. Grande · 2. Arrastra · 3. Guardar PNG",
               )}
             </p>
           ) : null}
           {ready && savedName && !err ? (
-            <p className="pointer-events-none absolute inset-x-3 bottom-3 text-center text-sm font-medium text-ink">
+            <p className={PLATE_NOTE}>
               {say(
                 `Saved. ${savedName}${shipXp ? ` · +${shipXp} XP` : ""}`,
                 `Guardado. ${savedName}${shipXp ? ` · +${shipXp} XP` : ""}`,
@@ -604,7 +607,7 @@ export function MarkBench() {
             </p>
           ) : null}
           {ready && stamps === 1 && !savedName && !err ? (
-            <p className="pointer-events-none absolute inset-x-3 bottom-3 text-center text-sm font-medium text-ink">
+            <p className={PLATE_NOTE}>
               {say("It’s on the plate.", "Ya está en la placa.")}
             </p>
           ) : null}

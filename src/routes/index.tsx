@@ -89,7 +89,7 @@ function Home() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: Save lands on the plate, edits clear it, and the first ship shows +12 XP.
+          What’s new: the plate note sits at the top, so a stamp at the bottom stays visible.
         </p>
       </section>
 
