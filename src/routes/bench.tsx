@@ -29,8 +29,7 @@ function BenchPage() {
       </p>
       <h1 className="mt-1 font-display text-3xl font-medium">Mark bench</h1>
       <p className="mt-1 max-w-xl text-sm text-ink-soft">
-        Stamp words and shapes on the white plate. Nothing is uploaded. Real
-        trademarks stay off the press.
+        White plate. Nothing is uploaded. Real trademarks stay off.
       </p>
       {spanish ? (
         <p className="mt-1 max-w-xl text-sm text-muted">
@@ -38,7 +37,7 @@ function BenchPage() {
         </p>
       ) : null}
       <p className="mt-2 max-w-xl text-sm text-muted">
-        What’s new: the empty plate says start with Big word, and Save says the file landed.
+        What’s new: the first stamp says it’s on the plate, and the Fabric.js line fits this screen.
       </p>
       {Bench ? <Bench /> : <p className="mt-6 text-sm text-muted">Opening the press…</p>}
     </div>

@@ -89,7 +89,7 @@ function Home() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: the empty plate says start with Big word, and Save says the file landed.
+          What’s new: the first stamp says it’s on the plate, and the Fabric.js line fits this screen.
         </p>
       </section>
 

@@ -491,7 +491,16 @@ export function MarkBench() {
   function clearBoard() {
     const c = canvasRef.current;
     if (!c) return;
-    if (!window.confirm("Clear this mark? It only exists on this screen.")) return;
+    if (
+      !window.confirm(
+        say(
+          "Clear this mark? It only exists on this screen.",
+          "¿Borrar este sello? Solo está en esta pantalla.",
+        ),
+      )
+    ) {
+      return;
+    }
     pushHist();
     c.remove(...c.getObjects());
     c.discardActiveObject();
@@ -565,6 +574,11 @@ export function MarkBench() {
               )}
             </p>
           ) : null}
+          {ready && stamps === 1 && !savedName && !err ? (
+            <p className="pointer-events-none absolute inset-x-3 bottom-3 text-center text-sm font-medium text-ink">
+              {say("It’s on the plate.", "Ya está en la placa.")}
+            </p>
+          ) : null}
         </div>
         {!ready && !err ? (
           <p className="mt-3 text-center text-sm text-muted">Opening the press…</p>
@@ -577,7 +591,8 @@ export function MarkBench() {
         <p
           className={cn(
             "mt-3 text-center text-sm",
-            savedName && note.startsWith(spanish ? "Listo." : "You saved it.")
+            (stamps > 0 && !note) ||
+              (savedName && note.startsWith(spanish ? "Listo." : "You saved it."))
               ? "font-medium text-ink"
               : "text-muted",
           )}
@@ -591,8 +606,8 @@ export function MarkBench() {
                   "Empieza con Grande. Luego arrástrala. Luego Guardar PNG.",
                 )
               : say(
-                  "Drag to move. Save PNG when it looks right.",
-                  "Arrastra. Guardar PNG cuando se vea bien.",
+                  "It’s on the plate. Drag it, then Save PNG.",
+                  "Ya está en la placa. Arrástrala y luego Guardar PNG.",
                 ))}
         </p>
       </div>
@@ -697,10 +712,10 @@ export function MarkBench() {
             {say("Save SVG", "Guardar SVG")}
           </Button>
         </div>
-        <p className="text-xs text-muted">
+        <p className="truncate text-xs text-muted">
           {say(
-            "PNG is the picture. SVG keeps the shapes. Both stay on this Chromebook. Fabric.js is MIT.",
-            "PNG es la imagen. SVG guarda las formas. Los dos quedan en este Chromebook. Fabric.js es MIT.",
+            "On this Chromebook. Fabric.js is MIT.",
+            "En este Chromebook. Fabric.js es MIT.",
           )}
         </p>
       </div>
