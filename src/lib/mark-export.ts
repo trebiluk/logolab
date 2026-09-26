@@ -2,6 +2,18 @@
 export const MARK_SVG_NAME = "logolab-mark.svg";
 export const MARK_PNG_NAME = "logolab-mark.png";
 
+/** A second local PNG name. Never replaces logolab-mark.png. */
+export function shopPngName(shop: string): string | null {
+  const stem = shop
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 24);
+  if (stem.length < 2 || stem === "logolab-mark") return null;
+  return `${stem}.png`;
+}
+
 export const MARK_SVG_NOTE =
   "<!-- LogoLab mark. Saved on this Chromebook. Not uploaded. Fabric.js is MIT — see NOTICE. -->";
 

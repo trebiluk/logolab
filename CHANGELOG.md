@@ -2,6 +2,10 @@
 
 Chip lives in `src/lib/version.ts` as `APP_CHIP`. One string: header, About, this file.
 
+## LL 1.2.14 — 2026-09-26
+
+- What’s new: Save PNG also writes a shop-named file, and the inks stay up during the job.
+
 ## LL 1.2.13 — 2026-09-26
 
 - What’s new: Today’s job stays open, you can stamp a shop name, and the home list speaks Spanish.

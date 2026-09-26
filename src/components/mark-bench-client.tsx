@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   MARK_PNG_NAME,
   MARK_SVG_NAME,
+  shopPngName,
   stampSvg,
   triggerDownload,
 } from "@/lib/mark-export";
@@ -94,7 +95,14 @@ export function MarkBench() {
   const [shapes, setShapes] = useState(0);
   const [jobOpen, setJobOpen] = useState(false);
   const [jobSeen, setJobSeen] = useState(false);
-  const [shopName, setShopName] = useState("");
+  const [shopName, setShopName] = useState(() => {
+    try {
+      return (sessionStorage.getItem("logolab-shop") ?? "").slice(0, 24);
+    } catch {
+      return "";
+    }
+  });
+  const [dragging, setDragging] = useState(false);
   const [err, setErr] = useState("");
   const jobCloseRef = useRef<HTMLButtonElement>(null);
 
@@ -171,6 +179,7 @@ export function MarkBench() {
         canvas.on("before:transform", () => {
           const c = canvasRef.current;
           if (!c || restoring.current) return;
+          setDragging(true);
           setSavedName("");
           setShipXp(0);
           setNote((n) => (n.startsWith("Saved.") || n.startsWith("Guardado.") ? "" : n));
@@ -179,6 +188,9 @@ export function MarkBench() {
           if (stack[stack.length - 1] === next) return;
           stack.push(next);
           if (stack.length > 12) stack.shift();
+        });
+        canvas.on("mouse:up", () => {
+          if (!dead) setDragging(false);
         });
         canvas.on("object:added", () => {
           if (!dead) syncPlate(canvasRef.current?.getObjects() ?? []);
@@ -591,9 +603,11 @@ export function MarkBench() {
         return;
       }
       const url = URL.createObjectURL(blob);
+      const extra = shopPngName(shopName);
       triggerDownload(MARK_PNG_NAME, url);
+      if (extra) triggerDownload(extra, url);
       window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
-      markShipped(MARK_PNG_NAME);
+      markShipped(extra ? `${MARK_PNG_NAME} and ${extra}` : MARK_PNG_NAME);
     }
   }
 
@@ -603,13 +617,23 @@ export function MarkBench() {
     setShipXp(xp);
     setSavedName(name);
     const bonus = xp ? ` +${xp} XP.` : "";
+    const both = name.includes(" and ");
+    const named = both ? name.replace(" and ", " y ") : name;
     setNote(
       spanish
-        ? `Guardado. ${name} quedó en este Chromebook.${bonus}`
-        : `Saved. ${name} is on this Chromebook.${bonus}`,
+        ? `Guardado. ${named} ${both ? "quedaron" : "quedó"} en este Chromebook.${bonus}`
+        : `Saved. ${name} ${both ? "are" : "is"} on this Chromebook.${bonus}`,
     );
     awardBench();
   }
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("logolab-shop", shopName);
+    } catch {
+      /* this tab may block storage */
+    }
+  }, [shopName]);
 
   useEffect(() => {
     if (!jobOpen) return;
@@ -639,7 +663,7 @@ export function MarkBench() {
             ref={hostRef}
             className="mark-press w-full overflow-hidden rounded-xl border border-line bg-white"
           />
-          {ready && stamps === 0 && !err ? (
+          {ready && !dragging && stamps === 0 && !err ? (
             <p className={PLATE_NOTE}>
               {say(
                 "1. Big word · 2. Drag · 3. Save PNG",
@@ -647,7 +671,7 @@ export function MarkBench() {
               )}
             </p>
           ) : null}
-          {ready && jobSeen && jobDone === 3 && !err ? (
+          {ready && !dragging && jobSeen && jobDone === 3 && !err ? (
             <p className={PLATE_NOTE}>
               {say(
                 shopName.trim() ? `Job done. ${shopName.trim()}` : "Job done.",
@@ -655,7 +679,7 @@ export function MarkBench() {
               )}
             </p>
           ) : null}
-          {ready && savedName && !(jobSeen && jobDone === 3) && !err ? (
+          {ready && !dragging && savedName && !(jobSeen && jobDone === 3) && !err ? (
             <p className={PLATE_NOTE}>
               {say(
                 `Saved. ${savedName}${shipXp ? ` · +${shipXp} XP` : ""}`,
@@ -663,7 +687,7 @@ export function MarkBench() {
               )}
             </p>
           ) : null}
-          {ready && stamps === 1 && !savedName && !err ? (
+          {ready && !dragging && stamps === 1 && !savedName && !err ? (
             <p className={PLATE_NOTE}>
               {say("It’s on the plate.", "Ya está en la placa.")}
             </p>
@@ -746,6 +770,25 @@ export function MarkBench() {
           {say("Type word", "Escribir")}
         </Button>
 
+        <div className="flex flex-wrap gap-2" role="group" aria-label={say("Ink", "Tinta")}>
+          {INKS.map((swatch) => (
+            <button
+              key={swatch.name}
+              type="button"
+              disabled={!ready}
+              aria-label={swatch.name}
+              aria-pressed={ink === swatch.hex}
+              onClick={() => paint(swatch.hex)}
+              className={cn(
+                "size-11 rounded-md border disabled:opacity-50",
+                swatch.hex === "#ffffff" ? "border-2 border-ink/35" : "border-line",
+                ink === swatch.hex && "ring-2 ring-teal ring-offset-2 ring-offset-paper",
+              )}
+              style={{ backgroundColor: swatch.hex }}
+            />
+          ))}
+        </div>
+
         {jobOpen ? (
           <div
             role="region"
@@ -773,6 +816,11 @@ export function MarkBench() {
                   value={shopName}
                   maxLength={24}
                   onChange={(e) => setShopName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter") return;
+                    e.preventDefault();
+                    void addWord(true, shopName);
+                  }}
                   placeholder={say("Shop name", "Nombre de la tienda")}
                   className="h-11 w-full rounded-md border border-line bg-white px-3 text-base text-ink"
                 />
@@ -813,25 +861,6 @@ export function MarkBench() {
           </div>
         ) : (
           <>
-        <div className="flex flex-wrap gap-2" role="group" aria-label={say("Ink", "Tinta")}>
-          {INKS.map((swatch) => (
-            <button
-              key={swatch.name}
-              type="button"
-              disabled={!ready}
-              aria-label={swatch.name}
-              aria-pressed={ink === swatch.hex}
-              onClick={() => paint(swatch.hex)}
-              className={cn(
-                "size-11 rounded-md border disabled:opacity-50",
-                swatch.hex === "#ffffff" ? "border-2 border-ink/35" : "border-line",
-                ink === swatch.hex && "ring-2 ring-teal ring-offset-2 ring-offset-paper",
-              )}
-              style={{ backgroundColor: swatch.hex }}
-            />
-          ))}
-        </div>
-
         <div className="grid grid-cols-3 gap-2">
           <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={() => void duplicate()}>
             {say("Duplicate", "Duplicar")}

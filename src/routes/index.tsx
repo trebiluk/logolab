@@ -93,7 +93,7 @@ function Home() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: Today’s job stays open, you can stamp a shop name, and the home list speaks Spanish.
+          What’s new: Save PNG also writes a shop-named file, and the inks stay up during the job.
         </p>
       </section>
 
