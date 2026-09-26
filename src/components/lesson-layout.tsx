@@ -142,6 +142,7 @@ export function ExitTicket({ prompt }: { prompt: string }) {
   const saved = useProgress((s) => s.tickets[lessonId] ?? "");
   const saveTicket = useProgress((s) => s.saveTicket);
   const awarded = useProgress((s) => s.ticketAwarded.includes(lessonId));
+  const spanish = useProgress((s) => s.spanish);
   const [text, setText] = useState(saved);
   const [justSaved, setJustSaved] = useState(false);
 
@@ -188,6 +189,12 @@ export function ExitTicket({ prompt }: { prompt: string }) {
           {text.trim().length}/280 · first save of 8+ letters earns XP
         </span>
       </div>
+      <a
+        href={`${import.meta.env.BASE_URL}bench?job=1`}
+        className="mt-4 inline-flex min-h-11 items-center text-sm font-medium text-teal-soft underline-offset-4 hover:underline"
+      >
+        {spanish ? "Prueba este trabajo en el banco" : "Try this job on the bench"}
+      </a>
     </section>
   );
 }

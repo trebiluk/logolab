@@ -70,8 +70,12 @@ function Home() {
             {nextLesson || !started ? (
               <Link to="/lessons/$id" params={{ id: resume.id }}>
                 {started
-                  ? `Continue · Lesson ${resume.number}`
-                  : "Start Lesson 1"}
+                  ? spanish
+                    ? `Sigue · Lección ${resume.number}`
+                    : `Continue · Lesson ${resume.number}`
+                  : spanish
+                    ? "Empieza la lección 1"
+                    : "Start Lesson 1"}
                 <ArrowRight className="size-4" />
               </Link>
             ) : (
@@ -82,14 +86,14 @@ function Home() {
             )}
           </Button>
           <Button asChild size="lg" variant="secondary">
-            <Link to="/bench">Mark bench</Link>
+            <Link to="/bench">{spanish ? "Banco de marcas" : "Mark bench"}</Link>
           </Button>
           <Button asChild size="lg" variant="secondary">
-            <Link to="/teacher">Teacher guide</Link>
+            <Link to="/teacher">{spanish ? "Guía del maestro" : "Teacher guide"}</Link>
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: Today’s job is an optional card — one word, one shape, then save.
+          What’s new: Today’s job stays open, you can stamp a shop name, and the home list speaks Spanish.
         </p>
       </section>
 
@@ -129,9 +133,11 @@ function Home() {
 
       <section className="mt-14">
         <div className="mb-4 flex items-end justify-between gap-3">
-          <h2 className="font-display text-3xl font-medium">Six stations</h2>
+          <h2 className="font-display text-3xl font-medium">
+            {spanish ? "Seis estaciones" : "Six stations"}
+          </h2>
           <Link to="/lessons" className="text-sm text-teal no-underline">
-            All lessons
+            {spanish ? "Todas las lecciones" : "All lessons"}
           </Link>
         </div>
         <ol className="grid gap-3 sm:grid-cols-2">
@@ -149,12 +155,16 @@ function Home() {
                   </span>
                   <span>
                     <span className="flex flex-wrap items-center gap-2">
-                      <span className="font-medium text-ink">{l.title}</span>
+                      <span className="font-medium text-ink">
+                        {spanish ? l.titleEs : l.title}
+                      </span>
                       {done ? (
                         <Badge>+{XP_PER_LESSON} XP</Badge>
                       ) : null}
                     </span>
-                    <span className="mt-1 block text-sm text-muted">{l.summary}</span>
+                    <span className="mt-1 block text-sm text-muted">
+                      {spanish ? l.title : l.summary}
+                    </span>
                   </span>
                 </Link>
               </li>

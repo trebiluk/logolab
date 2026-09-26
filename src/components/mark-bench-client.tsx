@@ -94,6 +94,7 @@ export function MarkBench() {
   const [shapes, setShapes] = useState(0);
   const [jobOpen, setJobOpen] = useState(false);
   const [jobSeen, setJobSeen] = useState(false);
+  const [shopName, setShopName] = useState("");
   const [err, setErr] = useState("");
   const jobCloseRef = useRef<HTMLButtonElement>(null);
 
@@ -308,27 +309,30 @@ export function MarkBench() {
     setNote("");
   }
 
-  async function addWord(display: boolean) {
+  async function addWord(display: boolean, preset?: string) {
     const c = canvasRef.current;
     if (!c) return;
+    const label = (preset ?? (display ? "MARK" : "name")).trim().slice(0, 24);
+    if (!label) return;
     pushHist();
     const { IText: FabricText } = await import("fabric");
     const w = c.getWidth();
+    const big = display && label.length <= 10;
     const { left, top } = dropAt(
       c,
-      display ? Math.round(w * 0.28) : Math.round(w * 0.16),
-      display ? Math.round(w * 0.1) : Math.round(w * 0.07),
+      big ? Math.round(w * 0.28) : Math.round(w * 0.16),
+      big ? Math.round(w * 0.1) : Math.round(w * 0.07),
     );
-    const text = new FabricText(display ? "MARK" : "name", {
+    const text = new FabricText(label, {
       left,
       top,
       originX: "center",
       originY: "center",
       fill: inkRef.current,
-      fontFamily: display
+      fontFamily: big
         ? "Fraunces, Georgia, serif"
         : '"Source Sans 3", sans-serif',
-      fontSize: display ? Math.round(w * 0.16) : Math.round(w * 0.1),
+      fontSize: big ? Math.round(w * 0.16) : Math.round(w * 0.1),
       fontWeight: 650,
       textAlign: "center",
       selectionColor: "rgba(31, 79, 74, 0.28)",
@@ -337,11 +341,13 @@ export function MarkBench() {
     c.add(text);
     c.setActiveObject(text);
     c.requestRenderAll();
-    requestAnimationFrame(() => {
-      if (canvasRef.current !== c) return;
-      text.enterEditing();
-      text.selectAll();
-    });
+    if (!preset) {
+      requestAnimationFrame(() => {
+        if (canvasRef.current !== c) return;
+        text.enterEditing();
+        text.selectAll();
+      });
+    }
     setNote("");
   }
 
@@ -615,6 +621,14 @@ export function MarkBench() {
     return () => window.removeEventListener("keydown", onKey);
   }, [jobOpen]);
 
+  useEffect(() => {
+    const job = new URLSearchParams(window.location.search).get("job");
+    if (job === "1") {
+      setJobSeen(true);
+      setJobOpen(true);
+    }
+  }, []);
+
   const jobDone = Number(words > 0) + Number(shapes > 0) + Number(Boolean(savedName));
 
   return (
@@ -633,7 +647,15 @@ export function MarkBench() {
               )}
             </p>
           ) : null}
-          {ready && savedName && !err ? (
+          {ready && jobSeen && jobDone === 3 && !err ? (
+            <p className={PLATE_NOTE}>
+              {say(
+                shopName.trim() ? `Job done. ${shopName.trim()}` : "Job done.",
+                shopName.trim() ? `Trabajo listo. ${shopName.trim()}` : "Trabajo listo.",
+              )}
+            </p>
+          ) : null}
+          {ready && savedName && !(jobSeen && jobDone === 3) && !err ? (
             <p className={PLATE_NOTE}>
               {say(
                 `Saved. ${savedName}${shipXp ? ` · +${shipXp} XP` : ""}`,
@@ -685,7 +707,7 @@ export function MarkBench() {
           aria-expanded={jobOpen}
           onClick={() => {
             setJobSeen(true);
-            setJobOpen(true);
+            setJobOpen((open) => !open);
           }}
         >
           {say("Today’s job", "Trabajo de hoy")}
@@ -724,6 +746,73 @@ export function MarkBench() {
           {say("Type word", "Escribir")}
         </Button>
 
+        {jobOpen ? (
+          <div
+            role="region"
+            aria-labelledby="todays-job-title"
+            className="flex flex-col gap-2 rounded-xl border border-line bg-white p-3"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p id="todays-job-title" className="font-medium">
+                {say("Today’s job", "Trabajo de hoy")}
+              </p>
+              <Button
+                ref={jobCloseRef}
+                type="button"
+                variant="outline"
+                className="px-3"
+                onClick={() => setJobOpen(false)}
+              >
+                {say("Tools", "Herramientas")}
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <label className="min-w-0 flex-1">
+                <span className="sr-only">{say("Shop name", "Nombre de la tienda")}</span>
+                <input
+                  value={shopName}
+                  maxLength={24}
+                  onChange={(e) => setShopName(e.target.value)}
+                  placeholder={say("Shop name", "Nombre de la tienda")}
+                  className="h-11 w-full rounded-md border border-line bg-white px-3 text-base text-ink"
+                />
+              </label>
+              <Button
+                type="button"
+                className="shrink-0 px-3"
+                disabled={!ready || shopName.trim().length < 2}
+                onClick={() => void addWord(true, shopName)}
+              >
+                {say("Stamp", "Estampar")}
+              </Button>
+            </div>
+            <ul className="grid grid-cols-3 gap-2 text-center text-sm">
+              {(
+                [
+                  [words > 0, "Word", "Palabra"],
+                  [shapes > 0, "Shape", "Forma"],
+                  [Boolean(savedName), "Saved", "Guardado"],
+                ] as const
+              ).map(([ok, en, es]) => (
+                <li key={en} className="flex min-h-11 flex-col items-center justify-center rounded-md border border-line px-1">
+                  <span>{say(en, es)}</span>
+                  <span className="font-medium">{ok ? say("Done", "Listo") : say("Not yet", "Aún no")}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="text-sm text-ink-soft">
+              {say("I chose this because ______.", "Elegí esto porque ______.")}{" "}
+              <Link
+                to="/printables/$id"
+                params={{ id: "design-brief" }}
+                className="font-medium text-teal underline-offset-4 hover:underline"
+              >
+                {say("Paper brief", "Hoja de papel")}
+              </Link>
+            </p>
+          </div>
+        ) : (
+          <>
         <div className="flex flex-wrap gap-2" role="group" aria-label={say("Ink", "Tinta")}>
           {INKS.map((swatch) => (
             <button
@@ -784,6 +873,8 @@ export function MarkBench() {
             {say("Clear", "Limpiar")}
           </Button>
         </div>
+          </>
+        )}
 
         <div className="grid grid-cols-2 gap-2">
           <Button type="button" disabled={!ready} onClick={() => ship("png")}>
@@ -799,61 +890,6 @@ export function MarkBench() {
             "En este Chromebook. Fabric.js es MIT.",
           )}
         </p>
-        {jobOpen ? (
-          <div
-            role="dialog"
-            aria-labelledby="todays-job-title"
-            className="absolute inset-0 z-20 flex flex-col gap-3 overflow-auto rounded-xl border border-line bg-paper p-3"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <p id="todays-job-title" className="font-display text-xl font-medium">
-                {say("Today’s job", "Trabajo de hoy")}
-              </p>
-              <Button
-                ref={jobCloseRef}
-                type="button"
-                variant="outline"
-                className="px-3"
-                onClick={() => setJobOpen(false)}
-              >
-                {say("Close", "Cerrar")}
-              </Button>
-            </div>
-            <p className="text-sm text-ink-soft">
-              {say(
-                "Invent a shop. Stamp one word and one shape. Save PNG here. Real trademarks stay off.",
-                "Inventa una tienda. Una palabra y una forma. Guarda PNG aquí. Sin marcas reales.",
-              )}
-            </p>
-            <ul className="flex flex-col gap-2">
-              {(
-                [
-                  [words > 0, "A word is on the plate", "Hay una palabra en la placa"],
-                  [shapes > 0, "A shape is on the plate", "Hay una forma en la placa"],
-                  [Boolean(savedName), "You saved a file", "Guardaste un archivo"],
-                ] as const
-              ).map(([ok, en, es]) => (
-                <li
-                  key={en}
-                  className="flex min-h-11 items-center justify-between gap-2 rounded-md border border-line px-3 text-sm"
-                >
-                  <span>{say(en, es)}</span>
-                  <span className="font-medium">{ok ? say("Done", "Listo") : say("Not yet", "Todavía no")}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="text-sm text-ink-soft">
-              {say("Sentence frame: I chose this because ______.", "Marco: Elegí esto porque ______.")}
-            </p>
-            <Link
-              to="/printables/$id"
-              params={{ id: "design-brief" }}
-              className="text-sm font-medium text-teal underline-offset-4 hover:underline"
-            >
-              {say("Paper brief", "Hoja de papel")}
-            </Link>
-          </div>
-        ) : null}
       </div>
     </div>
   );

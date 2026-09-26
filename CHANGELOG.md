@@ -2,6 +2,10 @@
 
 Chip lives in `src/lib/version.ts` as `APP_CHIP`. One string: header, About, this file.
 
+## LL 1.2.13 — 2026-09-26
+
+- What’s new: Today’s job stays open, you can stamp a shop name, and the home list speaks Spanish.
+
 ## LL 1.2.12 — 2026-09-26
 
 - What’s new: Today’s job is an optional card — one word, one shape, then save.

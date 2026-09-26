@@ -21,11 +21,11 @@ import { cn } from "@/lib/utils";
 import { APP_CHIP } from "@/lib/version";
 
 const NAV = [
-  { to: "/", label: "Home", icon: Home },
-  { to: "/lessons", label: "Lessons", icon: BookOpen },
-  { to: "/studio", label: "Studio", icon: Sparkles },
-  { to: "/glossary", label: "Words", icon: Languages },
-  { to: "/printables", label: "Print", icon: Printer },
+  { to: "/", label: "Home", labelEs: "Inicio", icon: Home },
+  { to: "/lessons", label: "Lessons", labelEs: "Lecciones", icon: BookOpen },
+  { to: "/studio", label: "Studio", labelEs: "Taller", icon: Sparkles },
+  { to: "/glossary", label: "Words", labelEs: "Palabras", icon: Languages },
+  { to: "/printables", label: "Print", labelEs: "Imprimir", icon: Printer },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -147,7 +147,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   )}
                 >
                   <item.icon className="size-4" />
-                  {item.label}
+                  {spanish ? item.labelEs : item.label}
                 </Link>
                 {item.to === "/studio" ? (
                   <Link
@@ -161,7 +161,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     )}
                   >
                     <PenLine className="size-4" />
-                    Bench
+                    {spanish ? "Banco" : "Bench"}
                   </Link>
                 ) : null}
               </Fragment>
@@ -191,7 +191,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           >
             <ClipboardList className="size-4" />
-            Teacher
+            {spanish ? "Maestro" : "Teacher"}
           </Link>
         </nav>
 
@@ -222,7 +222,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   )}
                 >
                   <item.icon className="size-5" />
-                  {item.label}
+                  {spanish ? item.labelEs : item.label}
                 </Link>
               </li>
             );

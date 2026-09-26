@@ -37,7 +37,7 @@ function BenchPage() {
         </p>
       ) : null}
       <p className="mt-2 max-w-xl text-sm text-muted">
-        What’s new: Today’s job is an optional card — one word, one shape, then save.
+        What’s new: Today’s job stays open, you can stamp a shop name, and the home list speaks Spanish.
       </p>
       {Bench ? <Bench /> : <p className="mt-6 text-sm text-muted">Opening the press…</p>}
     </div>
