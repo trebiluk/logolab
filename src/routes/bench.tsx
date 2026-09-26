@@ -37,7 +37,7 @@ function BenchPage() {
         </p>
       ) : null}
       <p className="mt-2 max-w-xl text-sm text-muted">
-        What’s new: the plate note sits at the top, so a stamp at the bottom stays visible.
+        What’s new: Today’s job is an optional card — one word, one shape, then save.
       </p>
       {Bench ? <Bench /> : <p className="mt-6 text-sm text-muted">Opening the press…</p>}
     </div>

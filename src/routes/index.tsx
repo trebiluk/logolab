@@ -89,7 +89,7 @@ function Home() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: the plate note sits at the top, so a stamp at the bottom stays visible.
+          What’s new: Today’s job is an optional card — one word, one shape, then save.
         </p>
       </section>
 

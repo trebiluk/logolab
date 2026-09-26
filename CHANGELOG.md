@@ -2,6 +2,10 @@
 
 Chip lives in `src/lib/version.ts` as `APP_CHIP`. One string: header, About, this file.
 
+## LL 1.2.12 — 2026-09-26
+
+- What’s new: Today’s job is an optional card — one word, one shape, then save.
+
 ## LL 1.2.11 — 2026-09-25
 
 - What’s new: the plate note sits at the top, so a stamp at the bottom stays visible.

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import type { Canvas, FabricObject, IText } from "fabric";
 import { Button } from "@/components/ui/button";
 import {
@@ -62,6 +63,14 @@ function finishEditing(c: Canvas) {
   c.requestRenderAll();
 }
 
+function countPlate(objs: FabricObject[]) {
+  let words = 0;
+  for (const obj of objs) {
+    if ("enterEditing" in obj) words += 1;
+  }
+  return { stamps: objs.length, words, shapes: Math.max(0, objs.length - words) };
+}
+
 function isEditing(obj: FabricObject): boolean {
   return "isEditing" in obj && Boolean((obj as IText).isEditing);
 }
@@ -81,9 +90,21 @@ export function MarkBench() {
   const [savedName, setSavedName] = useState("");
   const [shipXp, setShipXp] = useState(0);
   const [stamps, setStamps] = useState(0);
+  const [words, setWords] = useState(0);
+  const [shapes, setShapes] = useState(0);
+  const [jobOpen, setJobOpen] = useState(false);
+  const [jobSeen, setJobSeen] = useState(false);
   const [err, setErr] = useState("");
+  const jobCloseRef = useRef<HTMLButtonElement>(null);
 
   inkRef.current = ink;
+
+  function syncPlate(objs: FabricObject[]) {
+    const next = countPlate(objs);
+    setStamps(next.stamps);
+    setWords(next.words);
+    setShapes(next.shapes);
+  }
 
   function dropSaved() {
     setSavedName("");
@@ -159,10 +180,10 @@ export function MarkBench() {
           if (stack.length > 12) stack.shift();
         });
         canvas.on("object:added", () => {
-          if (!dead) setStamps(canvasRef.current?.getObjects().length ?? 0);
+          if (!dead) syncPlate(canvasRef.current?.getObjects() ?? []);
         });
         canvas.on("object:removed", () => {
-          if (!dead) setStamps(canvasRef.current?.getObjects().length ?? 0);
+          if (!dead) syncPlate(canvasRef.current?.getObjects() ?? []);
         });
         canvas.on("text:changed", () => {
           if (dead || restoring.current) return;
@@ -506,7 +527,7 @@ export function MarkBench() {
       restoring.current = false;
     }
     setNote("");
-    setStamps(c.getObjects().length);
+    syncPlate(c.getObjects());
   }
 
   function clearBoard() {
@@ -529,6 +550,8 @@ export function MarkBench() {
     c.requestRenderAll();
     setNote("");
     setStamps(0);
+    setWords(0);
+    setShapes(0);
   }
 
   async function ship(kind: "svg" | "png") {
@@ -581,6 +604,18 @@ export function MarkBench() {
     );
     awardBench();
   }
+
+  useEffect(() => {
+    if (!jobOpen) return;
+    jobCloseRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setJobOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [jobOpen]);
+
+  const jobDone = Number(words > 0) + Number(shapes > 0) + Number(Boolean(savedName));
 
   return (
     <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start">
@@ -643,9 +678,22 @@ export function MarkBench() {
                   "Ya está en la placa. Arrástrala y luego Guardar PNG.",
                 ))}
         </p>
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-3 w-full"
+          aria-expanded={jobOpen}
+          onClick={() => {
+            setJobSeen(true);
+            setJobOpen(true);
+          }}
+        >
+          {say("Today’s job", "Trabajo de hoy")}
+          {jobSeen ? ` · ${jobDone}/3` : ""}
+        </Button>
       </div>
 
-      <div className="flex w-full shrink-0 flex-col gap-2 lg:w-80">
+      <div className="relative flex w-full shrink-0 flex-col gap-2 lg:w-80">
         <div className="grid grid-cols-2 gap-2">
           <Button
             type="button"
@@ -751,6 +799,61 @@ export function MarkBench() {
             "En este Chromebook. Fabric.js es MIT.",
           )}
         </p>
+        {jobOpen ? (
+          <div
+            role="dialog"
+            aria-labelledby="todays-job-title"
+            className="absolute inset-0 z-20 flex flex-col gap-3 overflow-auto rounded-xl border border-line bg-paper p-3"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p id="todays-job-title" className="font-display text-xl font-medium">
+                {say("Today’s job", "Trabajo de hoy")}
+              </p>
+              <Button
+                ref={jobCloseRef}
+                type="button"
+                variant="outline"
+                className="px-3"
+                onClick={() => setJobOpen(false)}
+              >
+                {say("Close", "Cerrar")}
+              </Button>
+            </div>
+            <p className="text-sm text-ink-soft">
+              {say(
+                "Invent a shop. Stamp one word and one shape. Save PNG here. Real trademarks stay off.",
+                "Inventa una tienda. Una palabra y una forma. Guarda PNG aquí. Sin marcas reales.",
+              )}
+            </p>
+            <ul className="flex flex-col gap-2">
+              {(
+                [
+                  [words > 0, "A word is on the plate", "Hay una palabra en la placa"],
+                  [shapes > 0, "A shape is on the plate", "Hay una forma en la placa"],
+                  [Boolean(savedName), "You saved a file", "Guardaste un archivo"],
+                ] as const
+              ).map(([ok, en, es]) => (
+                <li
+                  key={en}
+                  className="flex min-h-11 items-center justify-between gap-2 rounded-md border border-line px-3 text-sm"
+                >
+                  <span>{say(en, es)}</span>
+                  <span className="font-medium">{ok ? say("Done", "Listo") : say("Not yet", "Todavía no")}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="text-sm text-ink-soft">
+              {say("Sentence frame: I chose this because ______.", "Marco: Elegí esto porque ______.")}
+            </p>
+            <Link
+              to="/printables/$id"
+              params={{ id: "design-brief" }}
+              className="text-sm font-medium text-teal underline-offset-4 hover:underline"
+            >
+              {say("Paper brief", "Hoja de papel")}
+            </Link>
+          </div>
+        ) : null}
       </div>
     </div>
   );
