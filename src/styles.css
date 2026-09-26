@@ -175,11 +175,16 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
+  :active {
+    transform: none !important;
+  }
 }
 
 @media (forced-colors: active) {
   :focus-visible {
-    outline: 3px solid Highlight;
+    outline: 3px solid Highlight !important;
+    outline-offset: 3px;
   }
 }
 

@@ -37,7 +37,7 @@ function BenchPage() {
         </p>
       ) : null}
       <p className="mt-2 max-w-xl text-sm text-muted">
-        What’s new: Save PNG also writes a shop-named file, and the inks stay up during the job.
+        What’s new: the plate is named for a screen reader, and the job checks are announced.
       </p>
       {Bench ? <Bench /> : <p className="mt-6 text-sm text-muted">Opening the press…</p>}
     </div>

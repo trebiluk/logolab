@@ -104,7 +104,8 @@ export function MarkBench() {
   });
   const [dragging, setDragging] = useState(false);
   const [err, setErr] = useState("");
-  const jobCloseRef = useRef<HTMLButtonElement>(null);
+  const jobNameRef = useRef<HTMLInputElement>(null);
+  const jobButtonRef = useRef<HTMLButtonElement>(null);
 
   inkRef.current = ink;
 
@@ -637,13 +638,34 @@ export function MarkBench() {
 
   useEffect(() => {
     if (!jobOpen) return;
-    jobCloseRef.current?.focus();
+    jobNameRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setJobOpen(false);
+      if (e.key === "Escape") {
+        setJobOpen(false);
+        jobButtonRef.current?.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [jobOpen]);
+
+  useEffect(() => {
+    const c = canvasRef.current;
+    const el = c?.getSelectionElement?.() ?? c?.upperCanvasEl;
+    if (!el) return;
+    const empty = words + shapes === 0;
+    el.setAttribute("role", "img");
+    el.setAttribute(
+      "aria-label",
+      spanish
+        ? empty
+          ? "Placa blanca. Vacía."
+          : `Placa blanca. ${words} ${words === 1 ? "palabra" : "palabras"}, ${shapes} ${shapes === 1 ? "forma" : "formas"}.`
+        : empty
+          ? "White plate. Empty."
+          : `White plate. ${words} ${words === 1 ? "word" : "words"}, ${shapes} ${shapes === 1 ? "shape" : "shapes"}.`,
+    );
+  }, [words, shapes, spanish, ready]);
 
   useEffect(() => {
     const job = new URLSearchParams(window.location.search).get("job");
@@ -661,10 +683,11 @@ export function MarkBench() {
         <div className="relative mx-auto w-full max-w-md">
           <div
             ref={hostRef}
+            aria-describedby="plate-status"
             className="mark-press w-full overflow-hidden rounded-xl border border-line bg-white"
           />
           {ready && !dragging && stamps === 0 && !err ? (
-            <p className={PLATE_NOTE}>
+            <p className={PLATE_NOTE} aria-hidden="true">
               {say(
                 "1. Big word · 2. Drag · 3. Save PNG",
                 "1. Grande · 2. Arrastra · 3. Guardar PNG",
@@ -672,7 +695,7 @@ export function MarkBench() {
             </p>
           ) : null}
           {ready && !dragging && jobSeen && jobDone === 3 && !err ? (
-            <p className={PLATE_NOTE}>
+            <p className={PLATE_NOTE} aria-hidden="true">
               {say(
                 shopName.trim() ? `Job done. ${shopName.trim()}` : "Job done.",
                 shopName.trim() ? `Trabajo listo. ${shopName.trim()}` : "Trabajo listo.",
@@ -680,7 +703,7 @@ export function MarkBench() {
             </p>
           ) : null}
           {ready && !dragging && savedName && !(jobSeen && jobDone === 3) && !err ? (
-            <p className={PLATE_NOTE}>
+            <p className={PLATE_NOTE} aria-hidden="true">
               {say(
                 `Saved. ${savedName}${shipXp ? ` · +${shipXp} XP` : ""}`,
                 `Guardado. ${savedName}${shipXp ? ` · +${shipXp} XP` : ""}`,
@@ -688,7 +711,7 @@ export function MarkBench() {
             </p>
           ) : null}
           {ready && !dragging && stamps === 1 && !savedName && !err ? (
-            <p className={PLATE_NOTE}>
+            <p className={PLATE_NOTE} aria-hidden="true">
               {say("It’s on the plate.", "Ya está en la placa.")}
             </p>
           ) : null}
@@ -711,6 +734,7 @@ export function MarkBench() {
               : "text-muted",
           )}
           role="status"
+          id="plate-status"
           aria-live="polite"
         >
           {note ||
@@ -728,6 +752,7 @@ export function MarkBench() {
           type="button"
           variant="outline"
           className="mt-3 w-full"
+          ref={jobButtonRef}
           aria-expanded={jobOpen}
           onClick={() => {
             setJobSeen(true);
@@ -800,11 +825,13 @@ export function MarkBench() {
                 {say("Today’s job", "Trabajo de hoy")}
               </p>
               <Button
-                ref={jobCloseRef}
                 type="button"
                 variant="outline"
                 className="px-3"
-                onClick={() => setJobOpen(false)}
+                onClick={() => {
+                  setJobOpen(false);
+                  jobButtonRef.current?.focus();
+                }}
               >
                 {say("Tools", "Herramientas")}
               </Button>
@@ -813,6 +840,7 @@ export function MarkBench() {
               <label className="min-w-0 flex-1">
                 <span className="sr-only">{say("Shop name", "Nombre de la tienda")}</span>
                 <input
+                  ref={jobNameRef}
                   value={shopName}
                   maxLength={24}
                   onChange={(e) => setShopName(e.target.value)}
@@ -834,7 +862,7 @@ export function MarkBench() {
                 {say("Stamp", "Estampar")}
               </Button>
             </div>
-            <ul className="grid grid-cols-3 gap-2 text-center text-sm">
+            <ul className="grid grid-cols-3 gap-2 text-center text-sm" aria-live="polite" aria-atomic="true">
               {(
                 [
                   [words > 0, "Word", "Palabra"],

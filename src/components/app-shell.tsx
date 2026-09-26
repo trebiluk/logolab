@@ -93,7 +93,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               className="min-w-11 px-3"
               onClick={() => setSpanish(!spanish)}
               aria-pressed={spanish}
-              title="Spanish supports"
+              aria-label={spanish ? "Apoyos en español, activados" : "Spanish supports"}
+              title={spanish ? "Apoyos en español" : "Spanish supports"}
             >
               ES
             </Button>
@@ -110,7 +111,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Button variant="ghost" size="default" asChild className="hidden min-h-11 sm:inline-flex">
               <Link to="/teacher">
                 <ClipboardList className="size-4" />
-                Teacher
+                {spanish ? "Maestro" : "Teacher"}
               </Link>
             </Button>
           </div>

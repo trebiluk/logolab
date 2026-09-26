@@ -93,7 +93,7 @@ function Home() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted">
-          What’s new: Save PNG also writes a shop-named file, and the inks stay up during the job.
+          What’s new: the plate is named for a screen reader, and the job checks are announced.
         </p>
       </section>
 

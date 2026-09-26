@@ -2,6 +2,10 @@
 
 Chip lives in `src/lib/version.ts` as `APP_CHIP`. One string: header, About, this file.
 
+## LL 1.2.15 — 2026-09-26
+
+- What’s new: the plate is named for a screen reader, and the job checks are announced.
+
 ## LL 1.2.14 — 2026-09-26
 
 - What’s new: Save PNG also writes a shop-named file, and the inks stay up during the job.
