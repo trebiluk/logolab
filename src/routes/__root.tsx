@@ -1,7 +1,9 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { AppShell } from "@/components/app-shell";
+import { APP_CHIP } from "@/lib/version";
 import appCss from "../styles.css?url";
 
 const APP_NAME = "BertyBot's LogoLab";
@@ -49,8 +51,22 @@ function Root() {
           </AppShell>
         </AuthProvider>
         <Scripts />
-        <script type="module" src="/shared/kw-who.js?v=2026-09-29-fit" />
+        <HubBar />
       </body>
     </html>
   );
+}
+
+/** Hub bar after paint, so it cannot rewrite the tree React just hydrated. */
+function HubBar() {
+  useEffect(() => {
+    if (document.querySelector('script[src*="kulibert-bar.js"]')) return;
+    const s = document.createElement("script");
+    s.src = "/shared/kulibert-bar.js";
+    s.defer = true;
+    s.dataset.app = "logolab";
+    s.dataset.version = APP_CHIP;
+    document.body.appendChild(s);
+  }, []);
+  return null;
 }

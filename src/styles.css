@@ -217,6 +217,11 @@
   margin-inline: auto;
 }
 
+/* Hub bar is fixed and pads the body. Keep a locked bench inside that pad. */
+body.kb-on .bench-locked {
+  height: calc(100dvh - 48px);
+}
+
 .bench-screen {
   display: flex;
   height: 100%;

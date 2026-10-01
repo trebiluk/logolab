@@ -13,7 +13,7 @@ import {
 import { useProgress } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { APP_CHIP } from "@/lib/version";
-import { recordMark } from "@/lib/who";
+import { recordScore } from "@/lib/who";
 import { XP_BENCH, XP_SAVE } from "@/lib/xp";
 
 const PAPER = "#ffffff";
@@ -130,6 +130,8 @@ export function MarkBench({ classic = false }: { classic?: boolean }) {
   const [err, setErr] = useState("");
   const jobNameRef = useRef<HTMLInputElement>(null);
   const previewTimer = useRef(0);
+  const scored = useRef(false);
+  const openedAt = useRef(Date.now());
 
   inkRef.current = ink;
 
@@ -676,6 +678,7 @@ export function MarkBench({ classic = false }: { classic?: boolean }) {
     ) {
       return;
     }
+    scored.current = false;
     pushHist();
     c.remove(...c.getObjects());
     c.discardActiveObject();
@@ -746,8 +749,13 @@ export function MarkBench({ classic = false }: { classic?: boolean }) {
         : `Saved. ${name} ${both ? "are" : "is"} on this Chromebook.${bonus}`,
     );
     awardBench();
-    const stars = liveReport().stars;
-    recordMark(shopName.trim() || "Foxfire Camp", stars);
+    postFinish(liveReport().stars);
+  }
+
+  function postFinish(passes: number) {
+    if (scored.current) return;
+    const ok = recordScore(passes, Date.now() - openedAt.current);
+    if (ok) scored.current = true;
   }
 
   function runCheck() {
@@ -755,6 +763,7 @@ export function MarkBench({ classic = false }: { classic?: boolean }) {
     if (result.stars >= 3) {
       const fresh = !useProgress.getState().designAwarded;
       awardDesign();
+      postFinish(result.stars);
       if (fresh) {
         setNote(
           say(

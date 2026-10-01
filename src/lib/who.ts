@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { APP_CHIP } from "@/lib/version";
+import { XP_BENCH, XP_SAVE } from "@/lib/xp";
 
 export type WhoCard = {
   alias?: string;
@@ -7,18 +9,24 @@ export type WhoCard = {
   at?: number;
 };
 
+export type ScoreWire = {
+  app?: string;
+  version?: string;
+  event?: string;
+  level?: string;
+  score?: number;
+  max?: number;
+  stars?: number;
+  xp?: number;
+  skill?: string;
+  ms?: number;
+};
+
 export type KulibertWhoApi = {
   read?: () => WhoCard | null;
   active?: () => boolean;
   mark?: (app: string, line: string) => void;
-  record?: (rec: {
-    app?: string;
-    event?: string;
-    level?: string;
-    score?: number;
-    stars?: number;
-    version?: string;
-  }) => unknown;
+  record?: (rec: ScoreWire) => unknown;
 };
 
 declare global {
@@ -55,11 +63,11 @@ export function useAlias(): string {
 }
 
 /**
- * Leave a teacher mark only for a verified, active TechWorks code.
- * Uses record() when a future kw-who.js adds it; otherwise mark().
- * Returns false when signed out — the bench still plays.
+ * One TechWorks score for a finished mark.
+ * record() is the v2 row. mark() is only the fallback.
+ * Signed-out kids still play; this returns false and nothing is posted.
  */
-export function recordMark(job: string, stars: number): boolean {
+export function recordScore(passes: number, ms: number): boolean {
   try {
     const whoApi = window.KulibertWho;
     if (!whoApi) return false;
@@ -67,16 +75,22 @@ export function recordMark(job: string, stars: number): boolean {
     const codeOk =
       !!who && who.verified === true && /^[A-Z2-9]{5}$/.test(String(who.code || ""));
     if (!(codeOk && typeof whoApi.active === "function" && whoApi.active())) return false;
-    const cleanJob = (job.trim() || "Foxfire Camp").replace(/\s+/g, " ").slice(0, 18);
-    const n = Math.max(0, Math.min(4, Math.round(stars)));
-    const line = `Mark: ${cleanJob} ★${n}`;
+    const score = Math.max(0, Math.min(4, Math.round(passes)));
+    const stars = Math.min(3, score);
+    const xp = score >= 3 ? XP_BENCH : XP_SAVE;
+    const line = `Foxfire ${score}/4`;
     if (typeof whoApi.record === "function") {
       const row = whoApi.record({
         app: "logolab",
-        event: "mark",
-        level: line,
-        score: n,
-        stars: n,
+        version: APP_CHIP,
+        event: "score",
+        level: "foxfire",
+        score,
+        max: 4,
+        stars,
+        xp,
+        skill: "branding",
+        ms: Math.max(0, Math.round(ms)),
       });
       if (row) return true;
     }

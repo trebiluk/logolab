@@ -96,7 +96,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div
       className={cn(
         "bg-paper text-ink",
-        benchLock ? "flex h-dvh flex-col overflow-hidden" : "min-h-dvh",
+        benchLock ? "bench-locked flex h-dvh flex-col overflow-hidden" : "min-h-dvh",
       )}
       data-layout={classic ? "classic" : "bench"}
     >

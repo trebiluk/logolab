@@ -2,6 +2,10 @@
 
 Chip lives in `src/lib/version.ts` as `APP_CHIP`. One string: header, About, this file.
 
+## LL 1.3.1 — 2026-10-01
+
+- What’s new: a finished mark posts one TechWorks score.
+
 ## LL 1.3.0 — 2026-10-01
 
 - What’s new: the bench opens first, and Check scores reads, contrast, balance, and shape.
