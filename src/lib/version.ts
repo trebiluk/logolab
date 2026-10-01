@@ -1,13 +1,14 @@
-/** One string. Chip = changelog header = About. Live looks like LL 1.2.15. */
-export const APP_CHIP = "LL 1.2.15";
+/** One string. Chip = changelog header = About. Live looks like LL 1.3.0. */
+export const APP_CHIP = "LL 1.3.0";
+
+export const WHATS_NEW =
+  "What’s new: the bench opens first, and Check scores reads, contrast, balance, and shape.";
 
 export const CHANGELOG: { chip: string; when: string; notes: string[] }[] = [
   {
-    chip: "LL 1.2.15",
-    when: "2026-09-26",
-    notes: [
-      "What’s new: the plate is named for a screen reader, and the job checks are announced.",
-    ],
+    chip: "LL 1.3.0",
+    when: "2026-10-01",
+    notes: [WHATS_NEW],
   },
   {
     chip: "LL 1.2.14",
@@ -170,7 +171,6 @@ export function floorDump(p: {
   completedLessons: string[];
   activityDone: string[];
   warmupDay: string;
-  hall: { name: string }[];
 }): string {
   return [
     APP_CHIP,
@@ -179,6 +179,5 @@ export function floorDump(p: {
     `stations=${p.completedLessons.length}`,
     `floor=${p.activityDone.join(",") || "—"}`,
     `warmup=${p.warmupDay || "—"}`,
-    `hallPosts=${p.hall.length}`,
   ].join("\n");
 }

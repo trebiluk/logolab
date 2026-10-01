@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { LogoMark } from "@/components/logo-mark";
 import { LESSONS, STUDIO } from "@/content/unit";
 import { useProgress } from "@/lib/store";
+import { useAlias } from "@/lib/who";
 import { RANKS, bragText, pinIdsEarned, PINS, rankFor, studioMaxXp } from "@/lib/xp";
 import { APP_CHIP } from "@/lib/version";
 import { cn } from "@/lib/utils";
@@ -16,8 +17,7 @@ export const Route = createFileRoute("/score")({ component: ScorePage });
 function ScorePage() {
   const xp = useProgress((s) => s.xp);
   const highScore = useProgress((s) => s.highScore);
-  const name = useProgress((s) => s.studentName);
-  const setStudentName = useProgress((s) => s.setStudentName);
+  const alias = useAlias();
   const completed = useProgress((s) => s.completedLessons);
   const best = useProgress((s) => s.activityBest);
   const done = useProgress((s) => s.activityDone);
@@ -25,12 +25,9 @@ function ScorePage() {
   const tickets = useProgress((s) => s.tickets);
   const warmupDay = useProgress((s) => s.warmupDay);
   const spanish = useProgress((s) => s.spanish);
-  const hall = useProgress((s) => s.hall);
-  const postHall = useProgress((s) => s.postHall);
   const rank = rankFor(xp);
   const [copied, setCopied] = useState(false);
-  const [posted, setPosted] = useState(false);
-  const text = bragText(name, highScore, rankFor(highScore).name);
+  const text = bragText(alias, highScore, rankFor(highScore).name);
   const perfects = STUDIO.filter((s) => (best[s.id] ?? 0) === 100).length;
   const pins = pinIdsEarned({
     completedLessons: completed,
@@ -74,8 +71,8 @@ function ScorePage() {
       <h1 className="mt-2 font-display text-4xl font-medium">Brag board</h1>
       <p className="mt-2 text-ink-soft">
         XP stays in this browser — Chromebook, Windows 11, Chrome or Edge. It is
-        brag, not a grade. Beat your high score, then post an alias to the hall
-        on this machine.
+        brag, not a grade. Sign-in is the Tech Room pill. This page never asks
+        for a name.
       </p>
 
       <article
@@ -86,7 +83,7 @@ function ScorePage() {
           <div>
             <p className="text-xs uppercase tracking-wider text-muted">BertyBot's LogoLab</p>
             <h2 className="font-display text-3xl font-medium">
-              {name.trim() || "Unnamed designer"}
+              {alias || (spanish ? "Este dispositivo" : "This device")}
             </h2>
             <p className="mt-1 text-teal">{rank.name}</p>
           </div>
@@ -197,66 +194,6 @@ function ScorePage() {
       </section>
 
       <section className="no-print mt-10">
-        <h2 className="font-display text-2xl font-medium">Post to this device</h2>
-        <p className="mt-1 text-sm text-ink-soft">
-          Shared Chromebook? Alias or first name only — never a last name. Post
-          and leave the hall up. Scores do not travel to other computers.
-        </p>
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
-          <label className="block flex-1 text-sm">
-            <span className="mb-1 block font-medium">Alias on the board</span>
-            <input
-              value={name}
-              onChange={(e) => setStudentName(e.target.value)}
-              placeholder="First name or alias"
-              autoComplete="nickname"
-              maxLength={18}
-              className="h-11 w-full rounded-md border border-line bg-surface px-3 text-ink"
-            />
-          </label>
-          <Button
-            onClick={() => {
-              postHall();
-              setPosted(true);
-            }}
-            disabled={xp <= 0}
-          >
-            Post my high score
-          </Button>
-        </div>
-        {posted ? (
-          <p className="mt-2 text-sm text-good">Posted. Scroll the hall below.</p>
-        ) : null}
-      </section>
-
-      <section className="mt-10">
-        <h2 className="font-display text-2xl font-medium">Hall of marks</h2>
-        {hall.length === 0 ? (
-          <p className="mt-3 text-ink-soft">
-            No scores posted on this device yet. Play, then post.
-          </p>
-        ) : (
-          <ol className="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
-            {hall.map((h, i) => (
-              <li
-                key={`${h.name}-${h.at}`}
-                className="flex items-center gap-4 px-4 py-3"
-              >
-                <span className="w-6 font-display text-lg tabular-nums text-teal">
-                  {i + 1}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block font-medium">{h.name}</span>
-                  <span className="text-sm text-muted">{h.rank}</span>
-                </span>
-                <span className="font-medium tabular-nums">{h.xp} XP</span>
-              </li>
-            ))}
-          </ol>
-        )}
-      </section>
-
-      <section className="no-print mt-10">
         <h2 className="font-display text-2xl font-medium">How to earn</h2>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-ink-soft">
           <li>Finish a station: 100 XP (once).</li>
@@ -265,6 +202,8 @@ function ScorePage() {
           <li>Clock in a Do now timer: 6 XP (once per station).</li>
           <li>Save a job ticket: 10 XP (once per station).</li>
           <li>Today’s sketch warmup: 8 XP (once a school day, Eastern Time).</li>
+          <li>Save a mark: 2 XP (once).</li>
+          <li>A 3-star Check: 12 XP (once).</li>
           <li>Replays only pay if you score higher than last time.</li>
           <li>XP does not change a 3/2/1 or a 1–4. It is a brag chip.</li>
         </ul>

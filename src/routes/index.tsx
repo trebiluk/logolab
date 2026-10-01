@@ -16,16 +16,23 @@ import {
 } from "@/content/marks";
 import { LESSONS, UNIT } from "@/content/unit";
 import { useProgress } from "@/lib/store";
+import { useClassicTheme, useFloorHome } from "@/lib/theme";
+import { WHATS_NEW } from "@/lib/version";
+import { BenchScreen } from "@/routes/bench";
 import { XP_PER_LESSON } from "@/lib/xp";
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({ component: Landing });
+
+function Landing() {
+  const classic = useClassicTheme();
+  const floorHome = useFloorHome();
+  if (!classic && !floorHome) return <BenchScreen classic={false} />;
+  return <Home />;
+}
 
 function Home() {
   const spanish = useProgress((s) => s.spanish);
   const completed = useProgress((s) => s.completedLessons);
-  const studentName = useProgress((s) => s.studentName);
-  const setStudentName = useProgress((s) => s.setStudentName);
-  const setRole = useProgress((s) => s.setRole);
   const nextLesson = LESSONS.find((l) => !completed.includes(l.id));
   const resume = nextLesson ?? LESSONS[0];
   const started = completed.length > 0;
@@ -92,9 +99,7 @@ function Home() {
             <Link to="/teacher">{spanish ? "Guía del maestro" : "Teacher guide"}</Link>
           </Button>
         </div>
-        <p className="mt-4 text-sm text-muted">
-          What’s new: the plate is named for a screen reader, and the job checks are announced.
-        </p>
+        <p className="mt-4 text-sm text-muted">{WHATS_NEW}</p>
       </section>
 
       <div className="rise-in rise-in-1 mt-10">
@@ -190,27 +195,6 @@ function Home() {
             <p className="mt-1 text-sm text-muted">{c.d}</p>
           </Link>
         ))}
-      </section>
-
-      <section className="mt-14 rounded-xl border border-line bg-surface p-5">
-        <h2 className="font-display text-2xl font-medium">Alias this device</h2>
-        <p className="mt-1 text-sm text-muted">
-          XP stays in this browser. Alias or first name only — never a last name.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <input
-            value={studentName}
-            onChange={(e) => setStudentName(e.target.value)}
-            placeholder="First name or alias"
-            autoComplete="nickname"
-            maxLength={18}
-            suppressHydrationWarning
-            className="h-11 min-w-[10rem] flex-1 rounded-md border border-line bg-paper px-3"
-          />
-          <Button type="button" variant="secondary" onClick={() => setRole("student")}>
-            I’m a student
-          </Button>
-        </div>
       </section>
     </div>
   );

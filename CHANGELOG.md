@@ -2,6 +2,10 @@
 
 Chip lives in `src/lib/version.ts` as `APP_CHIP`. One string: header, About, this file.
 
+## LL 1.3.0 — 2026-10-01
+
+- What’s new: the bench opens first, and Check scores reads, contrast, balance, and shape.
+
 ## LL 1.2.15 — 2026-09-26
 
 - What’s new: the plate is named for a screen reader, and the job checks are announced.

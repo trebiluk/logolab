@@ -6,6 +6,8 @@ export const XP_TIMER = 6;
 export const XP_TICKET = 10;
 export const XP_WARMUP = 8;
 export const XP_BENCH = 12;
+/** First local save. A 3-star check pays XP_BENCH, not this. */
+export const XP_SAVE = 2;
 export const XP_PER_LEVEL = 120;
 
 export const RANKS = [

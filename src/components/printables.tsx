@@ -18,6 +18,7 @@ import {
 } from "@/content/marks";
 import { PRINTABLES, LESSONS, STUDIO, UNIT } from "@/content/unit";
 import { useProgress } from "@/lib/store";
+import { useAlias } from "@/lib/who";
 import { PINS, pinIdsEarned, rankFor } from "@/lib/xp";
 
 export function PrintableIndex() {
@@ -498,7 +499,7 @@ function TeacherPacing() {
 }
 
 function Certificate() {
-  const name = useProgress((s) => s.studentName);
+  const alias = useAlias();
   const xp = useProgress((s) => s.xp);
   const high = useProgress((s) => s.highScore);
   const completed = useProgress((s) => s.completedLessons);
@@ -533,7 +534,7 @@ function Certificate() {
         Certifies that
       </p>
       <p className="mt-3 font-display text-4xl font-medium">
-        {name.trim() || "________________"}
+        {alias || "________________"}
       </p>
       <p className="mt-6 text-ink-soft">
         looked closely, named what they saw, and earned the rank of

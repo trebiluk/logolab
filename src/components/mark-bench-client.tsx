@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import type { Canvas, FabricObject, IText } from "fabric";
 import { Button } from "@/components/ui/button";
+import { checkDesign, type MarkPiece } from "@/lib/design-check";
 import {
   MARK_PNG_NAME,
   MARK_SVG_NAME,
@@ -11,7 +12,9 @@ import {
 } from "@/lib/mark-export";
 import { useProgress } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { XP_BENCH } from "@/lib/xp";
+import { APP_CHIP } from "@/lib/version";
+import { recordMark } from "@/lib/who";
+import { XP_BENCH, XP_SAVE } from "@/lib/xp";
 
 const PAPER = "#ffffff";
 
@@ -76,11 +79,30 @@ function isEditing(obj: FabricObject): boolean {
   return "isEditing" in obj && Boolean((obj as IText).isEditing);
 }
 
-export function MarkBench() {
+const HIT =
+  "bench-hit h-11 min-h-11 min-w-11 whitespace-normal px-1 py-1 text-center text-[11px] leading-tight";
+
+function pieceFrom(obj: FabricObject): MarkPiece {
+  const text = "fontSize" in obj && "text" in obj;
+  const fill = typeof obj.fill === "string" ? obj.fill : "#1c1a16";
+  return {
+    kind: text ? "text" : "shape",
+    fontSize: text ? Number((obj as IText).fontSize || 0) * (obj.scaleY || 1) : 0,
+    fill,
+    left: obj.left ?? 0,
+    top: obj.top ?? 0,
+    width: obj.getScaledWidth?.() ?? 24,
+    height: obj.getScaledHeight?.() ?? 24,
+  };
+}
+
+export function MarkBench({ classic = false }: { classic?: boolean }) {
   const spanish = useProgress((s) => s.spanish);
   const say = (en: string, es: string) => (spanish ? es : en);
   const awardBench = useProgress((s) => s.awardBench);
+  const awardDesign = useProgress((s) => s.awardDesign);
   const hostRef = useRef<HTMLDivElement>(null);
+  const slotRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<Canvas | null>(null);
   const hist = useRef<string[]>([]);
   const restoring = useRef(false);
@@ -93,8 +115,10 @@ export function MarkBench() {
   const [stamps, setStamps] = useState(0);
   const [words, setWords] = useState(0);
   const [shapes, setShapes] = useState(0);
-  const [jobOpen, setJobOpen] = useState(false);
-  const [jobSeen, setJobSeen] = useState(false);
+  const [pieces, setPieces] = useState<MarkPiece[]>([]);
+  const [platePx, setPlatePx] = useState(0);
+  const [preview32, setPreview32] = useState("");
+  const [preview16, setPreview16] = useState("");
   const [shopName, setShopName] = useState(() => {
     try {
       return (sessionStorage.getItem("logolab-shop") ?? "").slice(0, 24);
@@ -105,15 +129,38 @@ export function MarkBench() {
   const [dragging, setDragging] = useState(false);
   const [err, setErr] = useState("");
   const jobNameRef = useRef<HTMLInputElement>(null);
-  const jobButtonRef = useRef<HTMLButtonElement>(null);
+  const previewTimer = useRef(0);
 
   inkRef.current = ink;
+
+  function queuePreview() {
+    window.clearTimeout(previewTimer.current);
+    previewTimer.current = window.setTimeout(() => {
+      const c = canvasRef.current;
+      if (!c) return;
+      const w = Math.max(1, c.getWidth());
+      try {
+        setPreview32(
+          c.toDataURL({ format: "png", multiplier: 32 / w, enableRetinaScaling: false }),
+        );
+        setPreview16(
+          c.toDataURL({ format: "png", multiplier: 16 / w, enableRetinaScaling: false }),
+        );
+      } catch {
+        /* the plate may not be ready */
+      }
+    }, 40);
+  }
 
   function syncPlate(objs: FabricObject[]) {
     const next = countPlate(objs);
     setStamps(next.stamps);
     setWords(next.words);
     setShapes(next.shapes);
+    const c = canvasRef.current;
+    if (c) setPlatePx(c.getWidth());
+    setPieces(objs.map(pieceFrom));
+    queuePreview();
   }
 
   function dropSaved() {
@@ -139,6 +186,7 @@ export function MarkBench() {
     let dead = false;
     let canvas: Canvas | null = null;
     let onKey: ((e: KeyboardEvent) => void) | null = null;
+    let ro: ResizeObserver | null = null;
     const blockMenu = (e: Event) => e.preventDefault();
     host.addEventListener("contextmenu", blockMenu);
 
@@ -156,7 +204,18 @@ export function MarkBench() {
         InteractiveFabricObject.ownDefaults.cornerStrokeColor = HAND.cornerStrokeColor;
         InteractiveFabricObject.ownDefaults.borderColor = HAND.borderColor;
 
-        const size = Math.max(280, Math.min(448, Math.floor(host.clientWidth || 448)));
+        const measure = () => {
+          if (classic) {
+            return Math.max(280, Math.min(448, Math.floor(host.clientWidth || 448)));
+          }
+          const slot = slotRef.current;
+          const w = Math.max(0, (slot?.clientWidth || host.clientWidth || 320) - 52);
+          const h = slot?.clientHeight || host.clientHeight || w;
+          if (w < 80 || h < 80) return 0;
+          return Math.max(112, Math.floor(Math.min(w, h)));
+        };
+
+        const size = measure() || 240;
         const el = document.createElement("canvas");
         host.replaceChildren(el);
         canvas = new FabricCanvas(el, {
@@ -191,7 +250,9 @@ export function MarkBench() {
           if (stack.length > 12) stack.shift();
         });
         canvas.on("mouse:up", () => {
-          if (!dead) setDragging(false);
+          if (dead) return;
+          setDragging(false);
+          syncPlate(canvasRef.current?.getObjects() ?? []);
         });
         canvas.on("object:added", () => {
           if (!dead) syncPlate(canvasRef.current?.getObjects() ?? []);
@@ -204,6 +265,7 @@ export function MarkBench() {
           setSavedName("");
           setShipXp(0);
           setNote((n) => (n.startsWith("Saved.") || n.startsWith("Guardado.") ? "" : n));
+          syncPlate(canvasRef.current?.getObjects() ?? []);
         });
         canvas.on("text:editing:entered", (opt) => {
           const c = canvasRef.current;
@@ -254,7 +316,39 @@ export function MarkBench() {
           canvas = null;
           return;
         }
+        if (!classic) {
+          let last = canvas.getWidth();
+          const apply = () => {
+            const c = canvasRef.current;
+            if (dead || !c) return;
+            const next = measure();
+            if (!next || next === last) return;
+            const factor = last > 0 ? next / last : 1;
+            last = next;
+            c.setDimensions({ width: next, height: next });
+            if (c.getObjects().length && Math.abs(factor - 1) > 0.02) {
+              for (const obj of c.getObjects()) {
+                obj.set({
+                  left: (obj.left || 0) * factor,
+                  top: (obj.top || 0) * factor,
+                  scaleX: (obj.scaleX || 1) * factor,
+                  scaleY: (obj.scaleY || 1) * factor,
+                });
+                obj.setCoords();
+              }
+            }
+            c.requestRenderAll();
+            setPlatePx(next);
+            setPieces(c.getObjects().map(pieceFrom));
+            queuePreview();
+          };
+          ro = new ResizeObserver(() => apply());
+          if (slotRef.current) ro.observe(slotRef.current);
+          apply();
+        }
         setReady(true);
+        setPlatePx(canvas.getWidth());
+        queuePreview();
       } catch (e) {
         if (!dead) {
           setErr(e instanceof Error ? e.message : "The press did not open.");
@@ -267,11 +361,12 @@ export function MarkBench() {
       setReady(false);
       if (onKey) window.removeEventListener("keydown", onKey);
       host.removeEventListener("contextmenu", blockMenu);
+      ro?.disconnect();
       canvasRef.current = null;
       if (canvas) void canvas.dispose();
       host.replaceChildren();
     };
-  }, []);
+  }, [classic]);
 
   async function addShape(kind: "square" | "circle" | "triangle" | "bar") {
     const c = canvasRef.current;
@@ -345,7 +440,7 @@ export function MarkBench() {
       fontFamily: big
         ? "Fraunces, Georgia, serif"
         : '"Source Sans 3", sans-serif',
-      fontSize: big ? Math.round(w * 0.16) : Math.round(w * 0.1),
+      fontSize: big ? Math.round(w * 0.18) : Math.round(w * 0.1),
       fontWeight: 650,
       textAlign: "center",
       selectionColor: "rgba(31, 79, 74, 0.28)",
@@ -393,6 +488,7 @@ export function MarkBench() {
     pushHist();
     for (const obj of objs) obj.set("fill", hex);
     c.requestRenderAll();
+    commitPlate();
     setNote(
       hex === "#ffffff"
         ? say("White ink shows on top of a color.", "La tinta blanca se ve sobre un color.")
@@ -423,6 +519,7 @@ export function MarkBench() {
       else c.sendObjectBackwards(obj);
     }
     c.requestRenderAll();
+    commitPlate();
     setNote("");
   }
 
@@ -462,6 +559,7 @@ export function MarkBench() {
     }
     if (last) c.setActiveObject(last);
     c.requestRenderAll();
+    commitPlate();
     setNote("");
   }
 
@@ -475,19 +573,33 @@ export function MarkBench() {
       obj.setCoords();
     }
     c.requestRenderAll();
+    commitPlate();
     setNote("");
+  }
+
+  function commitPlate() {
+    const c = canvasRef.current;
+    if (!c) return;
+    syncPlate(c.getObjects());
   }
 
   function centerSelected() {
     const c = canvasRef.current;
-    if (!c || !needSelection()) return;
+    if (!c) return;
     const active = c.getActiveObject();
-    if (!active) return;
+    if (!active) {
+      setNote(spanish ? "Selecciona una forma primero." : "Select a shape first.");
+      return;
+    }
+    if (isEditing(active)) (active as IText).exitEditing();
     pushHist();
-    active.set({ left: c.getWidth() / 2, top: c.getHeight() / 2 });
-    active.setCoords();
+    const target = c.getActiveObject() || active;
+    target.set({ left: c.getWidth() / 2, top: c.getHeight() / 2 });
+    target.setCoords();
+    c.setActiveObject(target);
     c.requestRenderAll();
     setNote("");
+    commitPlate();
   }
 
   function scaleSelected(factor: number) {
@@ -501,6 +613,7 @@ export function MarkBench() {
       obj.setCoords();
     }
     c.requestRenderAll();
+    commitPlate();
     setNote("");
   }
 
@@ -519,6 +632,7 @@ export function MarkBench() {
       obj.setCoords();
     }
     c.requestRenderAll();
+    commitPlate();
     setNote("");
   }
 
@@ -612,9 +726,15 @@ export function MarkBench() {
     }
   }
 
+  function liveReport() {
+    const c = canvasRef.current;
+    if (!c) return checkDesign(pieces, platePx || 1, platePx || 1, spanish);
+    return checkDesign(c.getObjects().map(pieceFrom), c.getWidth(), c.getHeight(), spanish);
+  }
+
   function markShipped(name: string) {
     const fresh = !useProgress.getState().benchAwarded;
-    const xp = fresh ? XP_BENCH : 0;
+    const xp = fresh ? XP_SAVE : 0;
     setShipXp(xp);
     setSavedName(name);
     const bonus = xp ? ` +${xp} XP.` : "";
@@ -626,6 +746,31 @@ export function MarkBench() {
         : `Saved. ${name} ${both ? "are" : "is"} on this Chromebook.${bonus}`,
     );
     awardBench();
+    const stars = liveReport().stars;
+    recordMark(shopName.trim() || "Foxfire Camp", stars);
+  }
+
+  function runCheck() {
+    const result = liveReport();
+    if (result.stars >= 3) {
+      const fresh = !useProgress.getState().designAwarded;
+      awardDesign();
+      if (fresh) {
+        setNote(
+          say(
+            `3-star mark. +${XP_BENCH} XP.`,
+            `Marca de 3 estrellas. +${XP_BENCH} XP.`,
+          ),
+        );
+      }
+      return;
+    }
+    setNote(
+      say(
+        `${result.stars}/4 stars. Fix a red line.`,
+        `${result.stars}/4 estrellas. Arregla una línea roja.`,
+      ),
+    );
   }
 
   useEffect(() => {
@@ -635,19 +780,6 @@ export function MarkBench() {
       /* this tab may block storage */
     }
   }, [shopName]);
-
-  useEffect(() => {
-    if (!jobOpen) return;
-    jobNameRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setJobOpen(false);
-        jobButtonRef.current?.focus();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [jobOpen]);
 
   useEffect(() => {
     const c = canvasRef.current;
@@ -668,45 +800,77 @@ export function MarkBench() {
   }, [words, shapes, spanish, ready]);
 
   useEffect(() => {
+    if (!ready) return;
     const job = new URLSearchParams(window.location.search).get("job");
-    if (job === "1") {
-      setJobSeen(true);
-      setJobOpen(true);
-    }
-  }, []);
+    if (job === "1") jobNameRef.current?.focus();
+  }, [ready]);
 
-  const jobDone = Number(words > 0) + Number(shapes > 0) + Number(Boolean(savedName));
+  const report = useMemo(
+    () => checkDesign(pieces, platePx || 1, platePx || 1, spanish),
+    [pieces, platePx, spanish],
+  );
+
+  const plateStyle =
+    !classic && platePx > 0 ? { width: platePx, height: platePx } : undefined;
 
   return (
-    <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start">
-      <div className="min-w-0 flex-1 lg:sticky lg:top-16">
-        <div className="relative mx-auto w-full max-w-md">
+    <div
+      className={classic ? "mt-4 flex flex-col gap-4 lg:flex-row lg:items-start" : "bench-fit"}
+      data-layout={classic ? "classic" : "bench"}
+    >
+      <div
+        ref={slotRef}
+        className={classic ? "min-w-0 flex-1 lg:sticky lg:top-16" : "bench-plate"}
+      >
+        {classic ? null : (
+          <div className="bench-previews">
+            <img
+              alt={say("32px preview", "Vista a 32px")}
+              width={32}
+              height={32}
+              src={preview32 || undefined}
+              className="size-8 border border-line bg-white"
+            />
+            <img
+              alt={say("16px preview", "Vista a 16px")}
+              width={16}
+              height={16}
+              src={preview16 || undefined}
+              className="size-4 border border-line bg-white"
+            />
+          </div>
+        )}
+        <div className={classic ? "relative mx-auto w-full max-w-md" : "relative shrink-0"} style={plateStyle}>
           <div
             ref={hostRef}
             aria-describedby="plate-status"
             className="mark-press w-full overflow-hidden rounded-xl border border-line bg-white"
+            style={plateStyle}
           />
+          <span className="plate-chip" data-plate-chip="">
+            {APP_CHIP}
+          </span>
           {ready && !dragging && stamps === 0 && !err ? (
             <p className={PLATE_NOTE} aria-hidden="true">
               {say(
-                "1. Big word · 2. Drag · 3. Save PNG",
-                "1. Grande · 2. Arrastra · 3. Guardar PNG",
+                "Foxfire Camp: 1 word + 1 shape, 2 colors",
+                "Foxfire Camp: 1 palabra + 1 forma, 2 colores",
               )}
             </p>
           ) : null}
-          {ready && !dragging && jobSeen && jobDone === 3 && !err ? (
+          {ready && !dragging && savedName && report.stars >= 3 && !err ? (
             <p className={PLATE_NOTE} aria-hidden="true">
               {say(
-                shopName.trim() ? `Job done. ${shopName.trim()}` : "Job done.",
-                shopName.trim() ? `Trabajo listo. ${shopName.trim()}` : "Trabajo listo.",
+                `3-star mark.${shipXp ? ` +${shipXp} XP` : ""}`,
+                `Marca de 3 estrellas.${shipXp ? ` +${shipXp} XP` : ""}`,
               )}
             </p>
           ) : null}
-          {ready && !dragging && savedName && !(jobSeen && jobDone === 3) && !err ? (
+          {ready && !dragging && savedName && report.stars < 3 && !err ? (
             <p className={PLATE_NOTE} aria-hidden="true">
               {say(
-                `Saved. ${savedName}${shipXp ? ` · +${shipXp} XP` : ""}`,
-                `Guardado. ${savedName}${shipXp ? ` · +${shipXp} XP` : ""}`,
+                `Saved.${shipXp ? ` +${shipXp} XP` : ""}`,
+                `Guardado.${shipXp ? ` +${shipXp} XP` : ""}`,
               )}
             </p>
           ) : null}
@@ -716,237 +880,174 @@ export function MarkBench() {
             </p>
           ) : null}
         </div>
-        {!ready && !err ? (
+        {classic && !ready && !err ? (
           <p className="mt-3 text-center text-sm text-muted">Opening the press…</p>
         ) : null}
         {err ? (
-          <p className="mt-3 text-center text-sm text-bad" role="alert">
+          <p className={classic ? "mt-3 text-center text-sm text-bad" : "sr-only"} role="alert">
             {err}
           </p>
         ) : null}
-        <p
-          className={cn(
-            "mt-3 text-center text-sm",
-            (stamps > 0 && !note) ||
-              (savedName &&
-                (note.startsWith("Saved.") || note.startsWith("Guardado.")))
-              ? "font-medium text-ink"
-              : "text-muted",
-          )}
-          role="status"
-          id="plate-status"
-          aria-live="polite"
-        >
-          {note ||
-            (stamps === 0
-              ? say(
-                  "Start with Big word. Then drag it. Then Save PNG.",
-                  "Empieza con Grande. Luego arrástrala. Luego Guardar PNG.",
-                )
-              : say(
-                  "It’s on the plate. Drag it, then Save PNG.",
-                  "Ya está en la placa. Arrástrala y luego Guardar PNG.",
-                ))}
-        </p>
-        <Button
-          type="button"
-          variant="outline"
-          className="mt-3 w-full"
-          ref={jobButtonRef}
-          aria-expanded={jobOpen}
-          onClick={() => {
-            setJobSeen(true);
-            setJobOpen((open) => !open);
-          }}
-        >
-          {say("Today’s job", "Trabajo de hoy")}
-          {jobSeen ? ` · ${jobDone}/3` : ""}
-        </Button>
       </div>
 
-      <div className="relative flex w-full shrink-0 flex-col gap-2 lg:w-80">
-        <div className="grid grid-cols-2 gap-2">
-          <Button
-            type="button"
-            disabled={!ready}
-            title={stamps === 0 ? say("Do this first", "Haz esto primero") : undefined}
-            className={stamps === 0 ? "ring-2 ring-ink ring-offset-2 ring-offset-paper" : undefined}
-            onClick={() => void addWord(true)}
-          >
-            {say("Big word", "Grande")}
-          </Button>
-          <Button type="button" variant="secondary" disabled={!ready} onClick={() => void addWord(false)}>
-            {say("Plain word", "Normal")}
-          </Button>
-          <Button type="button" variant="secondary" disabled={!ready} onClick={() => void addShape("square")}>
-            {say("Square", "Cuadrado")}
-          </Button>
-          <Button type="button" variant="secondary" disabled={!ready} onClick={() => void addShape("circle")}>
-            {say("Circle", "Círculo")}
-          </Button>
-          <Button type="button" variant="secondary" disabled={!ready} onClick={() => void addShape("triangle")}>
-            {say("Triangle", "Triángulo")}
-          </Button>
-          <Button type="button" variant="secondary" disabled={!ready} onClick={() => void addShape("bar")}>
-            {say("Bar", "Barra")}
-          </Button>
-        </div>
-        <Button type="button" variant="secondary" disabled={!ready} onClick={typeWord}>
-          {say("Type word", "Escribir")}
-        </Button>
-
-        <div className="flex flex-wrap gap-2" role="group" aria-label={say("Ink", "Tinta")}>
-          {INKS.map((swatch) => (
-            <button
-              key={swatch.name}
+      <div className={classic ? "relative flex w-full shrink-0 flex-col gap-2 lg:w-80" : "bench-dock"}>
+        <div className={classic ? "flex flex-col gap-2" : "bench-tools"}>
+          <div className={classic ? "grid grid-cols-2 gap-2" : "contents"}>
+            <Button
               type="button"
               disabled={!ready}
-              aria-label={swatch.name}
-              aria-pressed={ink === swatch.hex}
-              onClick={() => paint(swatch.hex)}
-              className={cn(
-                "size-11 rounded-md border disabled:opacity-50",
-                swatch.hex === "#ffffff" ? "border-2 border-ink/35" : "border-line",
-                ink === swatch.hex && "ring-2 ring-teal ring-offset-2 ring-offset-paper",
-              )}
-              style={{ backgroundColor: swatch.hex }}
-            />
-          ))}
-        </div>
-
-        {jobOpen ? (
-          <div
-            role="region"
-            aria-labelledby="todays-job-title"
-            className="flex flex-col gap-2 rounded-xl border border-line bg-white p-3"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <p id="todays-job-title" className="font-medium">
-                {say("Today’s job", "Trabajo de hoy")}
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                className="px-3"
-                onClick={() => {
-                  setJobOpen(false);
-                  jobButtonRef.current?.focus();
-                }}
-              >
-                {say("Tools", "Herramientas")}
-              </Button>
-            </div>
-            <div className="flex gap-2">
-              <label className="min-w-0 flex-1">
-                <span className="sr-only">{say("Shop name", "Nombre de la tienda")}</span>
-                <input
-                  ref={jobNameRef}
-                  value={shopName}
-                  maxLength={24}
-                  onChange={(e) => setShopName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key !== "Enter") return;
-                    e.preventDefault();
-                    void addWord(true, shopName);
-                  }}
-                  placeholder={say("Shop name", "Nombre de la tienda")}
-                  className="h-11 w-full rounded-md border border-line bg-white px-3 text-base text-ink"
-                />
-              </label>
-              <Button
-                type="button"
-                className="shrink-0 px-3"
-                disabled={!ready || shopName.trim().length < 2}
-                onClick={() => void addWord(true, shopName)}
-              >
-                {say("Stamp", "Estampar")}
-              </Button>
-            </div>
-            <ul className="grid grid-cols-3 gap-2 text-center text-sm" aria-live="polite" aria-atomic="true">
-              {(
-                [
-                  [words > 0, "Word", "Palabra"],
-                  [shapes > 0, "Shape", "Forma"],
-                  [Boolean(savedName), "Saved", "Guardado"],
-                ] as const
-              ).map(([ok, en, es]) => (
-                <li key={en} className="flex min-h-11 flex-col items-center justify-center rounded-md border border-line px-1">
-                  <span>{say(en, es)}</span>
-                  <span className="font-medium">{ok ? say("Done", "Listo") : say("Not yet", "Aún no")}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="text-sm text-ink-soft">
-              {say("I chose this because ______.", "Elegí esto porque ______.")}{" "}
-              <Link
-                to="/printables/$id"
-                params={{ id: "design-brief" }}
-                className="font-medium text-teal underline-offset-4 hover:underline"
-              >
-                {say("Paper brief", "Hoja de papel")}
-              </Link>
-            </p>
+              title={stamps === 0 ? say("Do this first", "Haz esto primero") : undefined}
+              className={cn(HIT, stamps === 0 && "ring-2 ring-ink ring-offset-2 ring-offset-paper")}
+              onClick={() => void addWord(true)}
+            >
+              {say("Big word", "Grande")}
+            </Button>
+            <Button type="button" variant="secondary" className={HIT} disabled={!ready} onClick={() => void addWord(false)}>
+              {say("Plain word", "Normal")}
+            </Button>
+            <Button type="button" variant="secondary" className={HIT} disabled={!ready} onClick={() => void addShape("square")}>
+              {say("Square", "Cuadrado")}
+            </Button>
+            <Button type="button" variant="secondary" className={HIT} disabled={!ready} onClick={() => void addShape("circle")}>
+              {say("Circle", "Círculo")}
+            </Button>
+            <Button type="button" variant="secondary" className={HIT} disabled={!ready} onClick={() => void addShape("triangle")}>
+              {say("Triangle", "Triángulo")}
+            </Button>
+            <Button type="button" variant="secondary" className={HIT} disabled={!ready} onClick={() => void addShape("bar")}>
+              {say("Bar", "Barra")}
+            </Button>
+            <Button type="button" variant="secondary" className={HIT} disabled={!ready} onClick={typeWord}>
+              {say("Type word", "Escribir")}
+            </Button>
           </div>
-        ) : (
-          <>
-        <div className="grid grid-cols-3 gap-2">
-          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={() => void duplicate()}>
-            {say("Duplicate", "Duplicar")}
-          </Button>
-          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={rotateSelected}>
-            {say("Rotate", "Girar")}
-          </Button>
-          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={toggleOutline}>
-            {say("Outline", "Contorno")}
-          </Button>
-          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={() => scaleSelected(1.15)}>
-            {say("Bigger", "Grande")}
-          </Button>
-          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={() => scaleSelected(1 / 1.15)}>
-            {say("Smaller", "Chico")}
-          </Button>
-          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={centerSelected}>
-            {say("Center", "Centro")}
-          </Button>
+
+          <div className={classic ? "flex flex-wrap gap-2" : "contents"} role="group" aria-label={say("Ink", "Tinta")}>
+            {INKS.map((swatch) => (
+              <button
+                key={swatch.name}
+                type="button"
+                disabled={!ready}
+                aria-label={swatch.name}
+                aria-pressed={ink === swatch.hex}
+                onClick={() => paint(swatch.hex)}
+                className={cn(
+                  "ink-swatch size-11 min-h-11 min-w-11 rounded-md border disabled:opacity-50",
+                  swatch.hex === "#ffffff" ? "border-2 border-ink/35" : "border-line",
+                  ink === swatch.hex && "ring-2 ring-teal ring-offset-2 ring-offset-paper",
+                )}
+                style={{ backgroundColor: swatch.hex }}
+              />
+            ))}
+          </div>
+
+          <div className="bench-shop">
+            <label className="min-w-0 flex-1">
+              <span className="sr-only">{say("Shop name", "Nombre de la tienda")}</span>
+              <input
+                ref={jobNameRef}
+                value={shopName}
+                maxLength={24}
+                onChange={(e) => setShopName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter") return;
+                  e.preventDefault();
+                  void addWord(true, shopName);
+                }}
+                placeholder={say("Shop name", "Nombre de la tienda")}
+                aria-label={say("Shop name", "Nombre de la tienda")}
+              />
+            </label>
+            <Button
+              type="button"
+              className={cn(HIT, "shrink-0")}
+              disabled={!ready || shopName.trim().length < 2}
+              onClick={() => void addWord(true, shopName)}
+            >
+              {say("Stamp", "Estampar")}
+            </Button>
+          </div>
+
+          <div className={classic ? "grid grid-cols-3 gap-2" : "contents"}>
+            <Button type="button" variant="outline" className={HIT} disabled={!ready} onClick={() => void duplicate()}>
+              {say("Duplicate", "Duplicar")}
+            </Button>
+            <Button type="button" variant="outline" className={HIT} disabled={!ready} onClick={rotateSelected}>
+              {say("Rotate", "Girar")}
+            </Button>
+            <Button type="button" variant="outline" className={HIT} disabled={!ready} onClick={toggleOutline}>
+              {say("Outline", "Contorno")}
+            </Button>
+            <Button type="button" variant="outline" className={HIT} disabled={!ready} onClick={() => scaleSelected(1.15)}>
+              {say("Bigger", "Más")}
+            </Button>
+            <Button type="button" variant="outline" className={HIT} disabled={!ready} onClick={() => scaleSelected(1 / 1.15)}>
+              {say("Smaller", "Menos")}
+            </Button>
+            <Button type="button" variant="outline" className={HIT} disabled={!ready} onClick={centerSelected}>
+              {say("Center", "Centro")}
+            </Button>
+          </div>
+
+          <div className={classic ? "grid grid-cols-2 gap-2" : "contents"}>
+            <Button type="button" variant="outline" className={HIT} disabled={!ready} onClick={() => layer("up")}>
+              {say("Layer up", "Capa arriba")}
+            </Button>
+            <Button type="button" variant="outline" className={HIT} disabled={!ready} onClick={() => layer("down")}>
+              {say("Layer down", "Capa abajo")}
+            </Button>
+          </div>
+
+          <div className={classic ? "grid grid-cols-3 gap-2" : "contents"}>
+            <Button type="button" variant="outline" className={HIT} disabled={!ready} onClick={removeSelected}>
+              {say("Delete", "Borrar")}
+            </Button>
+            <Button type="button" variant="outline" className={HIT} disabled={!ready} onClick={() => void undo()}>
+              {say("Undo", "Deshacer")}
+            </Button>
+            <Button type="button" variant="outline" className={HIT} disabled={!ready} onClick={clearBoard}>
+              {say("Clear", "Limpiar")}
+            </Button>
+          </div>
+
+          <div className={classic ? "grid grid-cols-3 gap-2" : "contents"}>
+            <Button type="button" className={HIT} disabled={!ready} onClick={runCheck} data-action="check">
+              {say("Check", "Revisar")} {report.stars}/4
+            </Button>
+            <Button type="button" className={HIT} disabled={!ready} onClick={() => ship("png")} data-action="save-png">
+              {say("Save PNG", "Guardar PNG")}
+            </Button>
+            <Button type="button" variant="secondary" className={HIT} disabled={!ready} onClick={() => ship("svg")}>
+              {say("Save SVG", "Guardar SVG")}
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <Button type="button" variant="outline" disabled={!ready} onClick={() => layer("up")}>
-            {say("Layer up", "Capa arriba")}
-          </Button>
-          <Button type="button" variant="outline" disabled={!ready} onClick={() => layer("down")}>
-            {say("Layer down", "Capa abajo")}
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2">
-          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={removeSelected}>
-            {say("Delete", "Borrar")}
-          </Button>
-          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={() => void undo()}>
-            {say("Undo", "Deshacer")}
-          </Button>
-          <Button type="button" variant="outline" className="px-2" disabled={!ready} onClick={clearBoard}>
-            {say("Clear", "Limpiar")}
-          </Button>
-        </div>
-          </>
-        )}
-
-        <div className="grid grid-cols-2 gap-2">
-          <Button type="button" disabled={!ready} onClick={() => ship("png")}>
-            {say("Save PNG", "Guardar PNG")}
-          </Button>
-          <Button type="button" variant="secondary" disabled={!ready} onClick={() => ship("svg")}>
-            {say("Save SVG", "Guardar SVG")}
-          </Button>
-        </div>
-        <p className="truncate text-xs text-muted">
-          {say(
-            "On this Chromebook. Fabric.js is MIT.",
-            "En este Chromebook. Fabric.js es MIT.",
-          )}
-        </p>
+        <ul className="design-checks" id="plate-status" role="status" aria-live="polite" aria-atomic="true">
+          {report.checks.map((check) => (
+            <li key={check.id} data-pass={check.pass ? "true" : "false"} data-check={check.id}>
+              {check.line}
+            </li>
+          ))}
+        </ul>
+        {note ? <p className="sr-only">{note}</p> : null}
+        {classic ? (
+          <p className="text-sm text-ink-soft">
+            {say("I chose this because ______.", "Elegí esto porque ______.")}{" "}
+            <Link
+              to="/printables/$id"
+              params={{ id: "design-brief" }}
+              className="inline-flex min-h-11 items-center font-medium text-teal underline-offset-4 hover:underline"
+            >
+              {say("Paper brief", "Hoja de papel")}
+            </Link>
+          </p>
+        ) : null}
+        {classic ? (
+          <p className="truncate text-xs text-muted">
+            {say("On this Chromebook. Fabric.js is MIT.", "En este Chromebook. Fabric.js es MIT.")}
+          </p>
+        ) : null}
       </div>
     </div>
   );

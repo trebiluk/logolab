@@ -48,6 +48,7 @@ function Root() {
             <Outlet />
           </AppShell>
         </AuthProvider>
+        <script src="/shared/kw-who.js?v=2026-09-29-fit" />
         <Scripts />
       </body>
     </html>

@@ -10,10 +10,8 @@ export const Route = createFileRoute("/teacher")({ component: Teacher });
 function Teacher() {
   const setRole = useProgress((s) => s.setRole);
   const reset = useProgress((s) => s.reset);
-  const clearHall = useProgress((s) => s.clearHall);
   const xp = useProgress((s) => s.xp);
   const highScore = useProgress((s) => s.highScore);
-  const hall = useProgress((s) => s.hall);
   const completedLessons = useProgress((s) => s.completedLessons);
   const activityDone = useProgress((s) => s.activityDone);
   const warmupDay = useProgress((s) => s.warmupDay);
@@ -81,12 +79,12 @@ function Teacher() {
             to pick answers. Enter submits the fake-logo clinic.
           </li>
           <li>
-            Shared Chromebooks keep one scoreboard per browser profile. Ask
-            students to type a first name before they post to the hall.
+            Shared Chromebooks keep one scoreboard per browser profile. Sign-in
+            is the Tech Room pill. LogoLab never asks students to type a name.
           </li>
           <li>
-            XP and the hall live in this browser only. They do not follow a
-            student to another computer, and they are not an account login.
+            XP stays in this browser. A verified, active kid also leaves a short
+            mark when they save. It is not an account login inside LogoLab.
           </li>
           <li>
             Start class with the home warmup: 45 seconds to sketch today’s lab
@@ -104,9 +102,9 @@ function Teacher() {
         <h2 className="font-display text-2xl font-medium">XP on this device</h2>
         <p className="mt-2 text-ink-soft">
           Grade is not Bank. XP is brag on this Chromebook — it does not post to
-          TechWorks desk, TechCash, or a 3/2/1. Current {xp} · high {highScore} ·{" "}
-          {hall.length} hall posts (aliases only). Resetting clears lessons,
-          floor bests, stars, and XP. Teacher mode, ES, and large type stay.
+          TechWorks desk, TechCash, or a 3/2/1. Current {xp} · high {highScore}.
+          Resetting clears lessons, floor bests, stars, and XP. Teacher mode,
+          ES, and large type stay.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button
@@ -126,16 +124,6 @@ function Teacher() {
           </Button>
           <Button
             variant="outline"
-            onClick={() => {
-              if (window.confirm("Clear the hall of fame on this device?")) {
-                clearHall();
-              }
-            }}
-          >
-            Clear hall of fame
-          </Button>
-          <Button
-            variant="outline"
             onClick={async () => {
               const text = floorDump({
                 xp,
@@ -143,7 +131,6 @@ function Teacher() {
                 completedLessons,
                 activityDone,
                 warmupDay,
-                hall,
               });
               try {
                 await navigator.clipboard.writeText(text);
@@ -161,7 +148,7 @@ function Teacher() {
           </Button>
         </div>
         <p className="mt-2 text-xs text-muted">
-          Floor dump is counts only — no aliases. Hall names stay on this pad.
+          Floor dump is counts only — no names.
         </p>
       </section>
 

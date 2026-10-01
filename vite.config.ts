@@ -153,6 +153,13 @@ export default defineConfig(({ command, isPreview }) => ({
     host: "0.0.0.0",
     port: 8080,
     strictPort: true,
+    proxy: {
+      "/shared": {
+        target: "https://apps.kulibert.net",
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
   preview: {
     host: "127.0.0.1",

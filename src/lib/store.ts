@@ -8,6 +8,7 @@ import {
   XP_TIMER,
   XP_WARMUP,
   XP_BENCH,
+  XP_SAVE,
   rankFor,
   studioXp,
 } from "@/lib/xp";
@@ -45,6 +46,7 @@ type ProgressState = {
   timerAwarded: string[];
   warmupDay: string;
   benchAwarded: boolean;
+  designAwarded: boolean;
   xp: number;
   highScore: number;
   hall: HallEntry[];
@@ -61,6 +63,7 @@ type ProgressState = {
   awardTimer: (lessonId: string) => void;
   awardWarmup: (day: string) => void;
   awardBench: () => void;
+  awardDesign: () => void;
   clearGain: () => void;
   postHall: () => void;
   clearHall: () => void;
@@ -83,6 +86,7 @@ const empty = {
   timerAwarded: [] as string[],
   warmupDay: "",
   benchAwarded: false,
+  designAwarded: false,
   xp: 0,
   highScore: 0,
   hall: [] as HallEntry[],
@@ -200,7 +204,15 @@ export const useProgress = create<ProgressState>()(
         if (s.benchAwarded) return;
         set({
           benchAwarded: true,
-          ...xpPatch(s, XP_BENCH, "Mark shipped"),
+          ...xpPatch(s, XP_SAVE, "File saved"),
+        });
+      },
+      awardDesign: () => {
+        const s = get();
+        if (s.designAwarded) return;
+        set({
+          designAwarded: true,
+          ...xpPatch(s, XP_BENCH, "3-star mark"),
         });
       },
       clearGain: () => set({ lastGain: null }),
@@ -228,7 +240,7 @@ export const useProgress = create<ProgressState>()(
     }),
     {
       name: "logo-lab-progress",
-      version: 2,
+      version: 3,
       partialize: (s) => ({
         role: s.role,
         studentName: s.studentName,
@@ -245,6 +257,7 @@ export const useProgress = create<ProgressState>()(
         timerAwarded: s.timerAwarded,
         warmupDay: s.warmupDay,
         benchAwarded: s.benchAwarded,
+        designAwarded: s.designAwarded,
         xp: s.xp,
         highScore: s.highScore,
         hall: s.hall,
@@ -267,6 +280,7 @@ export const useProgress = create<ProgressState>()(
           timerAwarded: p.timerAwarded ?? [],
           warmupDay: p.warmupDay ?? "",
           benchAwarded: p.benchAwarded ?? false,
+          designAwarded: p.designAwarded ?? false,
           xp: p.xp ?? 0,
           highScore: p.highScore ?? 0,
           hall: (p.hall ?? []).map((h) => ({
@@ -295,6 +309,7 @@ export const useProgress = create<ProgressState>()(
           hall: p.hall ?? [],
           warmupDay: p.warmupDay ?? "",
           benchAwarded: p.benchAwarded ?? false,
+          designAwarded: p.designAwarded ?? false,
           studentName: aliasForBoard(p.studentName ?? ""),
         };
       },
